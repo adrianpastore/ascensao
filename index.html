@@ -1050,7 +1050,7 @@ function useSkill(i){if(state!=='play')return;const s=SK[i],id=s.id;let tgt=null
     if(!solid(nx,ny)){P.x=nx;P.y=ny}P.a=Math.atan2(e.y-P.y,e.x-P.x);burst(glowP,P.x,.7,P.y,20,col(0x9050d0),1.5,.6,0);
     damage(e,base*2.5*2*1.8,true,.3,1.5);num(e.x,e.d.s+.6,e.y,'Pelas costas','sys');if(br==='b'&&e.alive){e.mark=5;num(e.x,e.d.s+.75,e.y,'Marcado','sys')}
     if(br==='a'&&!e.alive){P.skCd[i]=0;setTimeout(()=>num(P.x+Math.cos(P.a),1.2,P.y+Math.sin(P.a),'Recarregado','sys'),200)}P.chain=1;P.combo=2;P.sw=0;P.swDur=.3;P.hitDone=true;hitStop=.08;P.shake=.15}
-  if(id==='rise'){const all=br==='a',air=br==='b'?2.1:1.3;P.combo=3;P.sw=0;P.swDur=.4;P.hitDone=true;if(all)ringFx(P.x,P.y,0xffd070,2.4,.35);
+  if(id==='rise'){const all=br==='a',air=br==='b'?2.1:1.3;P.combo=2;P.sw=0;P.swDur=.4;P.hitDone=true;if(all)ringFx(P.x,P.y,0xffd070,2.4,.35);
     for(const e of L.ents){if(!e.alive)continue;const dx=e.x-P.x,dy=e.y-P.y,d=Math.hypot(dx,dy);if(d>(all?2.4:2.9)+e.d.r)continue;if(!all&&Math.abs(angDiff(Math.atan2(dy,dx),P.a))>.8&&d>.6)continue;if(!los(P.x,P.y,e.x,e.y))continue;
       const c=Math.random()<critCh();damage(e,base*1.8*(c?1.8:1),c,0,1);launch(e,air)}hitStop=.06;P.shake=.12}
   if(id==='meteor'){const R_=br==='a'?4.1:2.6,cx=P.x+Math.cos(P.a)*1.3,cy=P.y+Math.sin(P.a)*1.3;ringFx(cx,cy,0xffd070,R_,.45);burst(glowP,cx,.2,cy,40,col(0xffd070),3,.6,4);sfx.slam();P.shake=.3;flashL=1;
@@ -1373,7 +1373,7 @@ function sync(dt,now){const t=now/1000;
     if(dual){const sp0=swp(SW[0],k);if(P.combo!==1)ps=sp0;if(P.combo!==0)ps2=mir(sp0);
       if(P.combo!==1){slash.material.opacity=so;slash.rotation.set(0,0,SW[0].s);slash.scale.set(sc,sc,1)}
       if(P.combo!==0){slash2.material.opacity=so;slash2.rotation.set(0,0,-SW[0].s);slash2.scale.set(-sc,sc,1)}}
-    else{const S_=SW[P.combo];ps=swp(S_,k);slash.material.opacity=so;slash.rotation.set(0,0,S_.s);slash.scale.set(S_.f*sc,sc,1)}}
+    else{const S_=SW[Math.min(P.combo,2)];ps=swp(S_,k);slash.material.opacity=so;slash.rotation.set(0,0,S_.s);slash.scale.set(S_.f*sc,sc,1)}}
   if(P.xs>0){const k=1-P.xs/.32,o=Math.sin(k*Math.PI)*.95;slash.material.opacity=o;slash.rotation.set(0,0,-.75);slash.scale.set(1.35,1.35,1);
     slash2.material.opacity=k>.35?Math.sin((k-.35)/.65*Math.PI)*.95:0;slash2.rotation.set(0,0,.75+Math.PI);slash2.scale.set(1.35,1.35,1);ps=pose(SW[2].a,SW[2].b,ease(Math.min(1,k*1.6)))}
   {const kd=WEAP[P.weapon].kind;
