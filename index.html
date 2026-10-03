@@ -25,7 +25,7 @@ body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:"Cha
 #vig{background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.6) 100%)}
 #hurt{background:radial-gradient(ellipse at center,transparent 35%,rgba(200,10,0,.7) 100%);opacity:0}
 #fury{background:radial-gradient(ellipse at center,transparent 45%,rgba(255,40,20,.35) 100%);opacity:0;transition:opacity .3s}
-#fade{background:#000;opacity:0;transition:opacity .45s}
+#fade{background:#000;opacity:0;transition:opacity .45s;display:flex;align-items:center;justify-content:center;color:var(--sys);letter-spacing:.2em;font-size:14px}
 #hurt{visibility:hidden}
 #cross{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;pointer-events:none}
 #cross::before,#cross::after{content:"";position:absolute;background:rgba(150,210,255,.85)}
@@ -206,11 +206,22 @@ button:focus-visible{outline:2px solid var(--xp);outline-offset:3px}
     <div class="btns" id="ovBtns"></div>
   </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-(()=>{
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<script type="module">
+(async()=>{
 const $=id=>document.getElementById(id);
-if(!window.THREE){$('ovText').textContent='Não foi possível carregar o motor 3D. Verifique a conexão e recarregue a página.';return}
+let THREE,GLTFLoader=null,SkeletonUtils=null;
+try{THREE=await import('three')}catch(e){$('ovText').textContent='Não foi possível carregar o motor 3D. Verifique a conexão e recarregue a página.';return}
+// modelos 3D são opcionais: se o carregador falhar, os inimigos usam as formas primitivas
+try{const[a,b]=await Promise.all([import('three/addons/loaders/GLTFLoader.js'),import('three/addons/utils/SkeletonUtils.js')]);GLTFLoader=a.GLTFLoader;SkeletonUtils=b}catch(e){GLTFLoader=null}
+// mantém o visual da r128: cores sem conversão sRGB e luzes no modo antigo (fator π e atenuação linear por distância)
+THREE.ColorManagement.enabled=false;
+{const C=THREE.ShaderChunk,src=C.lights_pars_begin;
+ C.lights_pars_begin=src.replace('vec3 irradiance = ambientLightColor;','vec3 irradiance = ambientLightColor * PI;')
+  .replace('vec3 irradiance = mix( hemiLight.groundColor, hemiLight.skyColor, hemiDiffuseWeight );','vec3 irradiance = mix( hemiLight.groundColor, hemiLight.skyColor, hemiDiffuseWeight ) * PI;')
+  .replace('light.color = directionalLight.color;','light.color = directionalLight.color * PI;')
+  .replace(/float getDistanceAttenuation\([^{]*\{[\s\S]*?return distanceFalloff;\s*\}/,'float getDistanceAttenuation( const in float lightDistance, const in float cutoffDistance, const in float decayExponent ) {\n\tif ( cutoffDistance > 0.0 && decayExponent > 0.0 ) return PI * pow( saturate( - lightDistance / cutoffDistance + 1.0 ), decayExponent );\n\treturn PI;\n}');
+ if((C.lights_pars_begin.match(/\* PI|return PI/g)||[]).length<5)console.warn('Ascensão: ajuste de luz não aplicado; confira a versão do three.js')}
 const coarse=matchMedia('(pointer:coarse)').matches;
 if(coarse){document.body.classList.add('coarse');$('ovKeys').textContent='Lado esquerdo anda · arraste no lado direito para mirar · botões para atacar, esquivar e usar habilidades'}
 
@@ -234,7 +245,7 @@ function genTex(fn,bump=3){
     nd.data[j]=(a/l*.5+.5)*255;nd.data[j+1]=(b/l*.5+.5)*255;nd.data[j+2]=(c/l*.5+.5)*255;nd.data[j+3]=255}
   nx.putImageData(nd,0,0);
   const t=c=>{const tx=new THREE.CanvasTexture(c);tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.anisotropy=maxAniso;return tx};
-  const r={map:t(cc),normalMap:t(nc)};r.map.encoding=THREE.sRGBEncoding;return r}
+  const r={map:t(cc),normalMap:t(nc)};r.map.colorSpace=THREE.SRGBColorSpace;return r}
 function radialTex(stops,size=64){const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d'),gr=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
   for(const[p,col]of stops)gr.addColorStop(p,col);g.fillStyle=gr;g.fillRect(0,0,size,size);return new THREE.CanvasTexture(c)}
 
@@ -393,7 +404,7 @@ const QUAL=[{n:'Baixa',cap:.75,lights:2},{n:'Média',cap:1,lights:3},{n:'Alta',c
 let qLevel=coarse?0:1;try{const v=localStorage.getItem('ascensao-q');if(v!==null)qLevel=+v}catch(e){}
 const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
 let res=Math.min(devicePixelRatio,QUAL[qLevel].cap);renderer.setPixelRatio(res);
-renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;renderer.autoClear=false;
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;renderer.autoClear=false;
 maxAniso=Math.min(8,renderer.capabilities.getMaxAnisotropy());
 
 const TX={
@@ -675,6 +686,7 @@ const wood=new THREE.MeshStandardMaterial({color:0x4a3220,roughness:.9}),steel=n
   bone=new THREE.MeshStandardMaterial({color:0xe8dcc0,roughness:.4}),gold=new THREE.MeshStandardMaterial({color:0xd8a43a,roughness:.3,metalness:.8});
 const SHIELDM=new THREE.MeshStandardMaterial({color:0x4a4e56,roughness:.45,metalness:.6});
 function buildMob(type){const d=MOBS[type],lk=d.look,body=d.body;
+  const mc=d.model&&MDL[d.model.file];if(mc&&mc.st==='ok'){const m=buildModelMob(d,mc);if(m)return m}
   const skin=new THREE.MeshStandardMaterial({color:lk.skin,roughness:lk.bone?.5:.6,transparent:body==='blob',opacity:body==='blob'?.82:1}),
         cloth=new THREE.MeshStandardMaterial({color:lk.cloth||0x2a2018,roughness:.85}),dark=new THREE.MeshStandardMaterial({color:0x1a1410,roughness:.7}),eyeM=new THREE.MeshBasicMaterial({color:lk.eye});
   const root=new THREE.Group(),g=new THREE.Group();root.add(g);g.scale.setScalar(d.s);
@@ -743,11 +755,41 @@ function buildMob(type){const d=MOBS[type],lk=d.look,body=d.body;
     if(lk.glow){const gl=sprite(GLOW,lk.glow,.9,.5);gl.position.y=.5;g.add(gl)}
     legs=[-1,1].map(sx=>{const h=piv(.06*sx,.06,0);M(MG.foot,dark,0,-.02,.03,h);return h});arms=[piv(0,0,0),piv(0,0,0)]}
   const eg=sprite(GLOW,lk.eye,.3,.6);eg.position.set(...eyeP);g.add(eg);
-  const bar=new THREE.Group();bar.position.y=barH*d.s+.08;root.add(bar);
+  return{root,g,legs,arms,orb,...mobBar(root,barH*d.s+.08),mats:[skin,cloth],body}}
+function mobBar(root,y){const bar=new THREE.Group();bar.position.y=y;root.add(bar);
   const bg=sprite(null,0x000000,1,.65,false);bg.scale.set(.72,.07,1);const fg=sprite(null,0xe03a2a,1,1,false);fg.center.set(0,.5);fg.position.x=-.35;fg.scale.set(.7,.05,1);
   const pf=sprite(null,0xf5c451,1,1,false);pf.center.set(0,.5);pf.position.set(-.35,-.068,0);pf.scale.set(0,.028,1);
-  bg.scale.y=.11;bg.position.y=-.02;bg.material.depthTest=fg.material.depthTest=pf.material.depthTest=true;bar.add(bg,fg,pf);bar.visible=false;
-  return{root,g,legs,arms,orb,bar,fg,pf,mats:[skin,cloth],body}}
+  bg.scale.y=.11;bg.position.y=-.02;bg.material.depthTest=fg.material.depthTest=pf.material.depthTest=true;bar.add(bg,fg,pf);bar.visible=false;return{bar,fg,pf}}
+// ---- modelos 3D (.glb) opcionais ----
+// MOBS[t].model={file:'models/x.glb', h?:altura antes da escala do mob, scale?, y?, rot?, hitAt?:fração do clipe de ataque em que o golpe acerta,
+//   clips:{idle,walk,run?,attack,hit?,death?}}. Sem arquivo, com erro ou sem carregador: buildMob usa as formas primitivas.
+const ANIM_CAP=coarse?15:30;let animF=0;
+const MDL={},MDL_H={biped:1.1,quad:.85,spider:.6,insect:.6,blob:.65,shroom:.6};
+const gltfL=GLTFLoader&&SkeletonUtils?new GLTFLoader():null;
+function loadModel(file){if(MDL[file])return MDL[file].p;const c=MDL[file]={st:'load'};
+  c.p=!gltfL?Promise.resolve(c.st='fail'):new Promise(res=>{const to=setTimeout(()=>{c.st='fail';console.warn('Modelo demorou demais: '+file);res()},20000);
+    gltfL.load(file,gl=>{clearTimeout(to);if(c.st!=='load')return;
+      try{const bb=new THREE.Box3().setFromObject(gl.scene);c.h=Math.max(.01,bb.max.y-bb.min.y);c.y0=bb.min.y;c.scene=gl.scene;c.clips=gl.animations||[];c.st='ok'}catch(e){c.st='fail'}res()},
+      undefined,()=>{clearTimeout(to);c.st='fail';console.warn('Modelo não carregado: '+file);res()})});
+  return c.p}
+function loadModelsFor(fams){const ts=new Set();for(const k of fams||[]){const f=FAMS[k];if(f){f.types.forEach(t=>ts.add(t));ts.add(f.boss)}}
+  const ps=[...ts].filter(t=>MOBS[t]&&MOBS[t].model).map(t=>loadModel(MOBS[t].model.file));return ps.length?Promise.all(ps):null}
+function buildModelMob(d,mc){try{const sp=d.model,root=new THREE.Group(),g=new THREE.Group();root.add(g);g.scale.setScalar(d.s);
+  const h=sp.h||MDL_H[d.body]||1,k=h/mc.h*(sp.scale||1),inner=new THREE.Group(),obj=SkeletonUtils.clone(mc.scene);
+  inner.scale.setScalar(k);inner.position.y=-mc.y0*k+(sp.y||0);inner.rotation.y=sp.rot||0;inner.add(obj);g.add(inner);
+  // materiais próprios por inimigo, para o piscar de dano não afetar os outros
+  const mats=[],cp=new Map(),own=mt=>{if(!cp.has(mt)){const c=mt.clone();cp.set(mt,c);if(c.emissive){c.userData.em=c.emissive.getHex();mats.push(c)}}return cp.get(mt)};
+  obj.traverse(o=>{if(!o.isMesh)return;o.frustumCulled=false;o.material=Array.isArray(o.material)?o.material.map(own):own(o.material)});
+  const mix=new THREE.AnimationMixer(obj),act={},cl=sp.clips||{};
+  for(const n of['idle','walk','run','attack','hit','death']){const c=cl[n]&&mc.clips.find(a=>a.name===cl[n]);if(c)act[n]=mix.clipAction(c)}
+  if(!act.idle&&!act.walk)return null;
+  const piv=()=>{const q=new THREE.Group();g.add(q);return q};
+  return{root,g,legs:[],arms:[piv(),piv()],orb:null,...mobBar(root,h*d.s+.15),mats,body:d.body,mix,act,cur:null,sp,acc:0}}
+  catch(e){console.warn('Falha ao montar modelo',e);return null}}
+// troca o clipe do inimigo; devolve false se o clipe (e o substituto) não existir
+function mobAnim(m,n,ts=1){const a=m.act[n]||(n==='run'?m.act.walk:null)||(n!=='death'?m.act.idle||m.act.walk:null);if(!a)return false;a.timeScale=ts;
+  if(m.cur!==a){const once=n==='attack'||n==='hit'||n==='death';a.reset();a.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,Infinity);a.clampWhenFinished=once;a.play();
+    if(m.cur)m.cur.crossFadeTo(a,n==='death'?.1:.18,false);m.cur=a}return true}
 function makeElite(e){e.elite=true;e.hp*=2.2;e.max*=2.2;e.postMax*=1.6;e.dmg*=1.35;e.xp=Math.round(e.xp*2.5);e.sc*=1.15;e.m.g.scale.setScalar(e.sc);
   const au=sprite(GLOW,0xff3020,1.8*e.d.s,.35);au.position.y=.5*e.d.s;e.m.root.add(au);e.m.fg.material.color.setHex(0xff8a20)}
 function spawnMob(t,x,y,hpM,dmM,xpM){const d=MOBS[t],m=buildMob(t);L.group.add(m.root);m.root.position.set(x,0,y);
@@ -1132,7 +1174,7 @@ function showOv(title,text,buttons,mode=''){ov.classList.toggle('story',mode==='
 function pause(){state='pause';P.trigger=false;showOv('Pausado','O portal continua aberto.',[['Continuar',resume]],'story')}
 function resume(){ov.hidden=true;state='play';last=performance.now();if(!coarse)canvas.requestPointerLock?.()}
 function enterFloor(kind){$('fade').style.opacity=1;closeCity();
-  setTimeout(()=>{if(kind==='pen')buildFloor(1+P.maxRank*2,true);else buildFloor(RUN.r*2+1+RUN.i*.6,false,{w:RUN.w??0,fams:RUN.fams||['gob']});
+  const go=()=>{$('fade').textContent='';if(kind==='pen')buildFloor(1+P.maxRank*2,true);else buildFloor(RUN.r*2+1+RUN.i*.6,false,{w:RUN.w??0,fams:RUN.fams||['gob']});
     try{renderer.compile(scene,cam);renderer.compile(gunScene,gunCam)}catch(e){}
     if(kind==='pen'||RUN.i===0){P.hp=maxHP();P.mp=maxMP()}else{P.hp=Math.min(maxHP(),P.hp+maxHP()*.25);P.mp=maxMP()}
     P.skCd=[0,0,0,0];P.fury=0;P.dash=null;save();hudKey='';hud();ov.hidden=true;state='play';last=performance.now();
@@ -1144,7 +1186,9 @@ function enterFloor(kind){$('fade').style.opacity=1;closeCity();
     if(!P.tipsCombo&&kind!=='pen'&&!(RUN&&RUN.tutorial)){P.tipsCombo=true;save();
       setTimeout(()=>note('Novo: combos','Acertos seguidos aumentam o dano. O terceiro golpe seguido é um golpe pesado. Levar dano zera o combo.',true),4500);
       setTimeout(()=>note('Novo: cancelamento e postura','Use habilidade ou esquiva logo após acertar para cancelar o golpe. Golpes enchem a barra amarela; cheia, o inimigo fica atordoado.'),9500);
-      setTimeout(()=>note('Novo: contra-ataque','Depois de uma esquiva perfeita, o próximo golpe é um contra-ataque crítico e muito forte.'),14500)}},470)}
+      setTimeout(()=>note('Novo: contra-ataque','Depois de uma esquiva perfeita, o próximo golpe é um contra-ataque crítico e muito forte.'),14500)}};
+  // espera os modelos 3D das famílias do portal (com limite de tempo; se falharem, usa as formas primitivas)
+  const lp=kind!=='pen'&&loadModelsFor(RUN&&RUN.fams);setTimeout(()=>{if(!lp){go();return}$('fade').textContent='Carregando...';lp.then(go)},470)}
 function enterPortal(o){if(P.penalty){enterFloor('pen');return}if(o.w===undefined){o.w=0;o.fams=['gob']}
   RUN={r:o.r,w:o.w,fams:o.fams,floors:o.floors,i:0,gold:0,kills:0,t0:gameT,id:o.id};enterFloor('run')}
 function finishRun(cleared){state='transit';document.exitPointerLock?.();const r=RUN;RUN=null;
@@ -1401,10 +1445,13 @@ function sync(dt,now){const t=now/1000;
   for(let i=L.rings.length-1;i>=0;i--){const r=L.rings[i];r.t+=dt;const k=r.t/r.life;
     if(k>=1){L.group.remove(r.m);L.rings.splice(i,1);continue}
     if(r.grow){r.m.scale.setScalar(.2+k*r.r);r.m.material.opacity=1-k}else r.m.material.opacity=.15+.35*k}
-  // inimigos
+  // inimigos (modelos 3D: só animam se visíveis; acima do limite, metade animam a cada quadro alternado)
+  animF++;let nAnim=0;const aDt=state==='play'?dt:0,tick=m=>{m.acc+=aDt;if(++nAnim<=ANIM_CAP||((animF+nAnim)&1)){m.mix.update(m.acc);m.acc=0}};
   for(const e of L.ents){const m=e.m;m.root.position.set(e.x,0,e.y);m.root.visible=(e.x-P.x)**2+(e.y-P.y)**2<L.vd2;if(!m.root.visible)continue;
-    if(!e.alive){const k=Math.min(1,e.dieT*2.5);m.g.rotation.x=-k*1.45;m.root.position.y=0;if(e.reviveT>0)continue;if(e.dieT>1.2){const s=Math.max(0,1-(e.dieT-1.2)*1.5);m.g.scale.setScalar(e.sc*s);if(s<=0&&m.root.parent){L.group.remove(m.root)}}continue}
+    if(!e.alive){const k=Math.min(1,e.dieT*2.5);if(m.mix){if(!mobAnim(m,'death'))m.g.rotation.x=-k*1.45;tick(m)}else m.g.rotation.x=-k*1.45;m.root.position.y=0;if(e.reviveT>0)continue;if(e.dieT>1.2){const s=Math.max(0,1-(e.dieT-1.2)*1.5);m.g.scale.setScalar(e.sc*s);if(s<=0&&m.root.parent){L.group.remove(m.root)}}continue}
     if(e.faceT!==undefined)e.face+=angDiff(e.faceT,e.face)*Math.min(1,dt*(e.state==='charge'?2:8));m.g.rotation.y=e.face;
+    if(m.mix){const n=e.state==='windup'||e.swing>0?'attack':e.hurt>0&&m.act.hit?'hit':e.moving?(e.state==='charge'?'run':'walk'):'idle';
+      mobAnim(m,n,n==='attack'&&m.act.attack?m.act.attack.getClip().duration*(m.sp.hitAt||.5)/Math.max(.15,e.d.windup+(e.atk==='slam'?.3:0)):n==='run'&&!m.act.run?1.6:1);tick(m)}
     const w=e.moving?Math.sin(e.anim*(e.state==='charge'?16:9)):0;m.legs.forEach((l,i)=>l.rotation.x=w*.6*((i+(i>>1))%2?-1:1));
     let ra,la=-w*.4;
     if(e.state==='windup'){const k=1-e.st/(e.d.windup+(e.atk==='slam'?.3:0));ra=lerp(m.arms[1].rotation.x,-2.7,.25);if(e.atk==='slam')la=ra;m.g.position.y=0}
@@ -1412,7 +1459,7 @@ function sync(dt,now){const t=now/1000;
     m.arms[1].rotation.x=ra;m.arms[0].rotation.x=la;
     m.g.position.y=e.moving?Math.abs(Math.sin(e.anim*9))*.03:0;m.g.rotation.z=e.stun>0?Math.sin(t*5)*.18:0;m.root.position.y=(e.airY||0)+(e.hopY||0);if((e.airY||0)>.05){m.g.rotation.x=-.5;m.g.rotation.z=Math.sin(t*9)*.3}else m.g.rotation.x=0;if(e.stun>0){m.arms[0].rotation.x=m.arms[1].rotation.x=.35}
     if(m.body==='blob'){const b=e.moving?Math.abs(Math.sin(e.anim*6)):0,sq=e.state==='windup'?.18:0;m.g.scale.set(e.sc*(1+.1*b+sq*.5),e.sc*(1-.15*b-sq),e.sc*(1+.1*b+sq*.5));m.g.position.y=b*.15}
-    const hc=e.hurt>0?0x803020:e.stun>0?0x3a2a06:(e.atk==='boom'&&e.state==='windup'?(Math.sin(t*30)>0?0xff4000:0):(e.state==='windup'?0x401008:0));for(const mt of m.mats)mt.emissive.setHex(hc);
+    const hc=e.hurt>0?0x803020:e.stun>0?0x3a2a06:(e.atk==='boom'&&e.state==='windup'?(Math.sin(t*30)>0?0xff4000:0):(e.state==='windup'?0x401008:0));for(const mt of m.mats)mt.emissive.setHex(hc||mt.userData.em||0);
     m.bar.visible=!!e.showBar&&Math.hypot(e.x-P.x,e.y-P.y)>1.4;if(m.bar.visible){const fr=Math.max(0,e.hp/e.max);m.fg.scale.x=.7*fr;m.pf.scale.x=e.stun>0?.7*(e.stun/2.6):.7*Math.min(1,e.post/e.postMax);m.pf.material.color.setHex(e.stun>0?0xff8a3a:0xf5c451)}
     if(m.orb)m.orb.scale.setScalar(e.state==='windup'?1.4+Math.sin(t*30)*.2:1)}
   for(const a of L.allies){const m=a.m;m.root.position.set(a.x,0,a.y);if(a.faceT!==undefined)a.face+=angDiff(a.faceT,a.face)*Math.min(1,dt*8);m.g.rotation.y=a.face;

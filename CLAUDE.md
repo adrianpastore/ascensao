@@ -10,10 +10,11 @@ Este arquivo é o guia do projeto para o Claude (e para quem mais mexer no códi
 
 - O jogo inteiro está em **um único arquivo: `index.html`** (HTML + CSS + JS inline).
 - Dependências externas carregadas por CDN:
-  - three.js **r128** (UMD): `https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js`
+  - three.js **0.186.1** (ES modules) via `<script type="importmap">` apontando para o jsDelivr (`three` e `three/addons/`). O script do jogo é `type="module"` e importa o three com `await import()` dentro da IIFE; `GLTFLoader` e `SkeletonUtils` são opcionais (se falharem, o jogo segue sem modelos).
+  - **Visual da r128 preservado**: `THREE.ColorManagement.enabled=false` e um ajuste em `ShaderChunk.lights_pars_begin` (fator π nas luzes e atenuação linear por distância, como no modo antigo). Ao trocar a versão do three.js, confira se o aviso "ajuste de luz não aplicado" aparece no console.
   - Fonte Google: **Chakra Petch**.
 - Publicação: GitHub Pages, branch `main`, pasta raiz. Basta substituir o `index.html` a cada versão.
-- Não há build, bundler nem servidor. Abrir o arquivo no navegador já funciona (com internet, por causa do CDN).
+- Não há build, bundler nem servidor. Abrir o arquivo no navegador já funciona (com internet, por causa do CDN). Modelos `.glb` só carregam por http(s) (GitHub Pages ou servidor local); abrindo por `file://`, os inimigos usam as formas primitivas.
 
 ---
 
@@ -200,7 +201,7 @@ models/
 ```
 
 ### Mudanças técnicas
-1. **Atualizar three.js** de r128 para uma versão atual com ES modules, usando `<script type="importmap">` apontando para o CDN, e importar `GLTFLoader` e `SkeletonUtils` dos exemplos.
+1. ~~**Atualizar three.js**~~ (feito: 0.186.1) de r128 para uma versão atual com ES modules, usando `<script type="importmap">` apontando para o CDN, e importar `GLTFLoader` e `SkeletonUtils` dos exemplos.
    - Atenção às mudanças de API entre versões: `outputEncoding` virou `outputColorSpace`, `texture.encoding` virou `colorSpace`, iluminação física passou a ser padrão (rever intensidades das luzes).
 2. **Mapa de modelos**: em cada entrada de `MOBS`, um campo opcional:
    ```js
@@ -212,6 +213,20 @@ models/
 6. **Compatibilidade com o resto**: o objeto retornado precisa continuar com `root`, `g`, `bar`, `fg`, `pf`, `mats` (para piscar ao levar dano, elites, barras). Para o piscar, guardar os materiais da malha clonada.
 7. **Elites e chefes**: mesmo modelo com escala maior e aura; chefes podem ter modelo próprio.
 8. **Desempenho**: limitar inimigos animados na tela (30 no computador, ~15 no celular), pausar o mixer de inimigos fora da distância de visão, preferir modelos com poucos polígonos e texturas pequenas (até 1 MB por modelo).
+
+### Situação atual
+- **Feito**: three.js atualizado; carregador de modelos com cache (`MDL`, `loadModel`, `loadModelsFor`), `buildModelMob` (clone com `SkeletonUtils`, materiais próprios por inimigo, altura normalizada pela caixa do modelo), `mobAnim` (troca de clipe com transição), espera dos modelos em `enterFloor` (tela "Carregando...", limite de 20 s por arquivo) e fallback para `buildMob` primitivo. Testado com o robô CC0 dos exemplos do three.js.
+- **Falta**: escolher e baixar os pacotes, colocar em `models/`, preencher o campo `model` em cada entrada de `MOBS` e registrar as licenças em `CREDITS.md`.
+
+### Campo `model` em `MOBS`
+```js
+model:{file:'models/esqueleto.glb', clips:{idle:'Idle', walk:'Walk', run:'Run', attack:'Attack', hit:'HitReact', death:'Death'},
+       h:1.1, scale:1, y:0, rot:0, hitAt:.5}
+```
+- `clips`: nomes exatos dos clipes no arquivo. Obrigatório ter `idle` ou `walk`; `run` (investida), `hit` e `death` são opcionais (sem `death`, o corpo tomba como antes).
+- `h`: altura do modelo antes da escala `s` do inimigo (padrão por corpo em `MDL_H`). `scale`, `y` e `rot` (radianos) corrigem modelos desalinhados; a frente do modelo deve ser +Z.
+- `hitAt`: fração do clipe de ataque em que o golpe acerta; o clipe é acelerado para esse ponto coincidir com o fim do `windup`.
+- Desempenho: só animam inimigos visíveis; acima de `ANIM_CAP` (30 no computador, 15 no celular) metade anima em quadros alternados.
 
 ### Fluxo de trabalho com o Claude
 O Claude não baixa os pacotes sozinho. O fluxo é: baixar os pacotes → enviar alguns `.glb` → o Claude lê os nomes das animações, liga cada modelo a um inimigo e devolve o `index.html` atualizado para subir junto com a pasta `models/`.
@@ -236,7 +251,8 @@ O Claude não baixa os pacotes sozinho. O fluxo é: baixar os pacotes → enviar
 ## 10. Testes
 
 - **Sintaxe**: extrair o último `<script>` e rodar `node --check`.
-- **Headless**: Playwright + Chromium com `--use-gl=swiftshader --enable-webgl --ignore-gpu-blocklist`, trocando o CDN do three.js por uma cópia local (`npm i three@0.128.0`).
+- **Sintaxe do módulo**: o script é `type="module"`; extrair o conteúdo para um `.mjs` antes do `node --check`.
+- **Headless**: Playwright + Chromium com `--use-gl=swiftshader --enable-webgl --ignore-gpu-blocklist`, servindo a cópia de teste por http e trocando as URLs do importmap por uma cópia local (`npm i three@0.186.1`; caminhos com `./`, senão o importmap os ignora). Não rodar dois navegadores swiftshader ao mesmo tempo (fica lento demais).
 - Usar `window.__dbg()` (em cópia de teste é possível expor mais funções) para teletransportar o jogador, forçar portais, causar dano e checar estado.
 - A renderização por software é muito lenta (1–3 quadros por segundo): usar viewport pequeno e esperas longas; medir lógica, não fluidez.
 - Checklist por etapa: sem erros no console, fluxo cidade → portal → andares → chefe → saída, save/continuar, celular (controles de toque).
