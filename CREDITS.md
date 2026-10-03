@@ -20,21 +20,21 @@ Modelos 3D usados em `models/`. Todos foram convertidos e otimizados (só as ani
 
 Personagens e animações de [Mixamo](https://www.mixamo.com), usados sob a licença do Mixamo: uso gratuito em jogos (inclusive comerciais), sem redistribuir os arquivos soltos ([FAQ](https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html)).
 
-| Personagem | Arquivo em  | Usado em |
+| Personagem | Arquivo em `models/` | Usado em |
 |---|---|---|
-| Goblin D Shareyko |  | Goblin |
-| Warrok W Kurniawan |  | Orc |
-| Ganfaul M Aure |  | Xamã |
-| Mutant | ,  (textura clareada) | Rei Goblin, Yeti |
-| Skeletonzombie T Avelange |  | Esqueleto, Arqueiro Esqueleto |
-| Knight D Pelegrini |  | Cavaleiro Morto |
-| Nightshade J Friedrich |  | Lich Ancestral, Feiticeira Élfica, Rainha da Neve |
-| Maw J Laygo |  | Demônio Ferreiro |
-| Demon T Wiezzorek |  | Diabrete, Senhor das Chamas |
-| Vampire A Lusth |  | Lanceiro Élfico |
-| Erika Archer |  | Arqueira Élfica |
+| Goblin D Shareyko | `goblin` | Goblin |
+| Warrok W Kurniawan | `orc` | Orc |
+| Ganfaul M Aure | `xama` | Xamã |
+| Mutant | `mutante`, `yeti` (textura clareada) | Rei Goblin, Yeti |
+| Skeletonzombie T Avelange | `esqueleto-zumbi` | Esqueleto, Arqueiro Esqueleto |
+| Knight D Pelegrini | `cavaleiro` | Cavaleiro Morto |
+| Nightshade J Friedrich | `feiticeira` | Lich Ancestral, Feiticeira Élfica, Rainha da Neve |
+| Maw J Laygo | `demonio-ferreiro` | Demônio Ferreiro |
+| Demon T Wiezzorek | `demonio` | Diabrete, Senhor das Chamas |
+| Vampire A Lusth | `vampiro` | Lanceiro Élfico |
+| Erika Archer | `arqueira` | Arqueira Élfica |
 
-Animações (): Standing Idle, Walking, Running, Standing Melee Attack Horizontal, Dying, Standing 1H Magic Attack 01, Standing Draw Arrow, Mutant Idle/Walking/Run/Swiping/Dying, Zombie Idle/Walk/Attack/Reaction Hit/Dying.
+Animações (`mixamo-animacoes.glb`): Standing Idle, Walking, Running, Standing Melee Attack Horizontal, Dying, Standing 1H Magic Attack 01, Standing Draw Arrow, Mutant Idle/Walking/Run/Swiping/Dying, Zombie Idle/Walk/Attack/Reaction Hit/Dying.
 
 ## Baixados e descartados
 
