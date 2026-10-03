@@ -302,12 +302,13 @@ const MOBS={
   KK={idle:'Idle_A',walk:'Walking_A',run:'Running_A',attack:'Throw',hit:'Hit_A',death:'Death_A'},
   m=(f,clips,o={})=>({file:'models/'+f+'.glb',clips,...o}),k=(f,o={})=>m(f,KK,{anims:'models/kaykit-animacoes.glb',...o});
  const MODELOS={
-  goblin:m('orc',UMW),orc:m('orc-caveira',UMW),shaman:m('tribal',UMB,{h:1.25}),boss:m('orc',UMW,{tint:0xffe6a0}),
-  skeleton:k('esqueleto'),skarcher:k('esqueleto-arqueiro'),deadknight:k('esqueleto-guerreiro'),lich:k('esqueleto-mago'),
-  wolfm:m('lobo',ANM),alpha:m('lobo',ANM,{tint:0x8a7a70}),hellhound:m('lobo',ANM,{tint:0xff5a3a}),icewolf:m('lobo-branco',ANM),
-  slime:m('limo',BLB),slimelet:m('limo',BLB),slimeking:m('limo-espinhos',BLB),shroom:m('cogumelo',BLB),sporer:m('cogumelo-espinhos',BLB),
-  yeti:m('yeti',UMB),imp:m('demonio',UMW),brute:m('demonio-azul',UMW),flamelord:m('demonio',UMW,{tint:0xffb080}),
-  elfspear:k('elfo-lanceiro',{tint:0xb8dcff}),elfarcher:k('elfo-arqueiro',{tint:0xd8ecff}),elfmage:k('elfo-mago'),snowqueen:k('elfo-mago',{tint:0xc0e8ff})};
+  goblin:m('orc',UMW),orc:m('orc-caveira',UMW),shaman:m('tribal',UMB,{h:1.25}),boss:m('orc',UMW,{tint:0xffd070,aura:0xffb030}),
+  skeleton:k('esqueleto'),skarcher:k('esqueleto-arqueiro'),deadknight:k('esqueleto-guerreiro'),lich:k('esqueleto-mago',{aura:0x9050ff}),
+  hellhound:m('lobo',ANM,{tint:0xff3018,emissive:0x380600}),
+  slime:m('limo',BLB),slimelet:m('limo',BLB),slimeking:m('limo-espinhos',BLB,{aura:0x60ff60}),shroom:m('cogumelo',BLB),sporer:m('cogumelo-espinhos',BLB),
+  imp:m('demonio',UMW),brute:m('demonio-azul',UMW),flamelord:m('demonio',UMW,{tint:0xff9050,emissive:0x401000,aura:0xff5010}),
+  elfspear:k('elfo-lanceiro',{tint:0x7fb8ff,emissive:0x10284a}),elfarcher:k('elfo-arqueiro',{tint:0x9cc8ff,emissive:0x10284a}),elfmage:k('elfo-mago',{tint:0xa8d4ff,emissive:0x10284a}),snowqueen:k('elfo-mago',{tint:0x9fd0ff,emissive:0x0a1830,aura:0x80d0ff})};
+ // Feras e Feras do Gelo ficam sem modelo até haver modelos para a família inteira (sem misturar estilos no mesmo mapa)
  for(const t in MODELOS)if(MOBS[t])MOBS[t].model=MODELOS[t]}
 const FAMS={
  gob:{name:'Goblinoides',types:['goblin','orc','shaman'],w:[.5,.25,.25],boss:'boss'},
@@ -791,12 +792,13 @@ function buildModelMob(d,mc){try{const sp=d.model,ext=sp.anims&&MDL[sp.anims],cl
   const h=sp.h||MDL_H[d.body]||1,k=h/mc.h*(sp.scale||1),inner=new THREE.Group(),obj=SkeletonUtils.clone(mc.scene);
   inner.scale.setScalar(k);inner.position.y=-mc.y0*k+(sp.y||0);inner.rotation.y=sp.rot||0;inner.add(obj);g.add(inner);
   // materiais próprios por inimigo, para o piscar de dano não afetar os outros
-  const mats=[],cp=new Map(),own=mt=>{if(!cp.has(mt)){const c=mt.clone();cp.set(mt,c);if(sp.tint&&c.color)c.color.multiply(new THREE.Color(sp.tint));if(c.emissive){c.userData.em=c.emissive.getHex();mats.push(c)}}return cp.get(mt)};
+  const mats=[],cp=new Map(),own=mt=>{if(!cp.has(mt)){const c=mt.clone();cp.set(mt,c);if(sp.tint&&c.color)c.color.multiply(new THREE.Color(sp.tint));if(sp.emissive&&c.emissive)c.emissive.setHex(sp.emissive);if(c.emissive){c.userData.em=c.emissive.getHex();mats.push(c)}}return cp.get(mt)};
   obj.traverse(o=>{if(!o.isMesh)return;o.frustumCulled=false;o.material=Array.isArray(o.material)?o.material.map(own):own(o.material)});
   const mix=new THREE.AnimationMixer(obj),act={},cl=sp.clips||{};
   for(const n of['idle','walk','run','attack','hit','death']){const c=cl[n]&&clips.find(a=>a.name===cl[n]);if(c)act[n]=mix.clipAction(c)}
   if(!act.idle&&!act.walk)return null;
   const piv=()=>{const q=new THREE.Group();g.add(q);return q};
+  if(sp.aura){const au=sprite(GLOW,sp.aura,1.9*d.s,.6);au.position.y=.5*h*d.s;root.add(au)}
   return{root,g,legs:[],arms:[piv(),piv()],orb:null,...mobBar(root,h*d.s+.15),mats,body:d.body,mix,act,cur:null,sp,acc:0}}
   catch(e){console.warn('Falha ao montar modelo',e);return null}}
 // troca o clipe do inimigo; devolve false se o clipe (e o substituto) não existir
@@ -935,7 +937,7 @@ function renderStatus(){const s=$('status'),w=WEAP[P.weapon];if(statusMode==='tr
 let statusFrom='play';
 function toggleStatus(open,mode){if(mode)statusMode=mode;if(state!=='play'&&state!=='status'&&state!=='city')return;statusOpen=open??!statusOpen;$('status').classList.toggle('open',statusOpen);
   if(statusOpen){statusFrom=state;state='status';P.trigger=false;document.exitPointerLock?.();renderStatus();$('closeStatus').focus({preventScroll:true});$('status').scrollTop=0}
-  else{state=statusFrom;last=performance.now();if(state==='play'){if(!coarse)canvas.requestPointerLock?.()}else renderCity()}}
+  else{state=statusFrom;last=performance.now();if(state==='play'){if(!coarse)lockPtr()}else renderCity()}}
 
 /* ================= combate ================= */
 let state='menu',hitStop=0,slowmo=0;
@@ -1154,7 +1156,9 @@ addEventListener('keydown',e=>{if(e.code==='Tab'){e.preventDefault();toggleWin('
   if(e.code==='KeyQ')useSkill(0);if(e.code==='KeyE')useSkill(1);if(e.code==='KeyR')useSkill(2);if(e.code==='KeyF')useSkill(3);if(e.code==='KeyB')startBlock();if(e.code==='KeyC')drink();if(e.code==='KeyV')drinkMana();if(e.code==='KeyX')useScroll()});
 addEventListener('keyup',e=>{keys[e.code]=false;if(e.code==='KeyB'&&P)P.blocking=false});
 addEventListener('mousemove',e=>{if(state==='play'&&document.pointerLockElement===canvas){P.a+=e.movementX*.0024;P.pitch=Math.max(-.6,Math.min(.6,P.pitch-e.movementY*.002))}});
-canvas.addEventListener('mousedown',e=>{if(coarse||state!=='play')return;if(document.pointerLockElement!==canvas){canvas.requestPointerLock?.();return}if(e.button===0)P.trigger=true;if(e.button===2)startBlock()});
+// sem gesto recente do usuário o navegador recusa a trava do mouse; clicar no jogo trava de novo
+function lockPtr(){try{const p=canvas.requestPointerLock?.();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+canvas.addEventListener('mousedown',e=>{if(coarse||state!=='play')return;if(document.pointerLockElement!==canvas){lockPtr();return}if(e.button===0)P.trigger=true;if(e.button===2)startBlock()});
 addEventListener('mouseup',e=>{P.trigger=false;if(e.button===2)P.blocking=false});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 function startBlock(){if(P.cls!=='esp'||P.blocking)return;P.blocking=true;P.blockT=0;cancelSwing()}
@@ -1185,13 +1189,13 @@ function showOv(title,text,buttons,mode=''){ov.classList.toggle('story',mode==='
   buttons.forEach(([label,fn],i)=>{const e=document.createElement('button');e.className='go'+(i?' alt':'');e.textContent=label;e.onclick=()=>{audio();fn()};b.appendChild(e)});
   ov.hidden=false;b.firstChild&&b.firstChild.focus()}
 function pause(){state='pause';P.trigger=false;showOv('Pausado','O portal continua aberto.',[['Continuar',resume]],'story')}
-function resume(){ov.hidden=true;state='play';last=performance.now();if(!coarse)canvas.requestPointerLock?.()}
+function resume(){ov.hidden=true;state='play';last=performance.now();if(!coarse)lockPtr()}
 function enterFloor(kind){$('fade').style.opacity=1;closeCity();
   const go=()=>{$('fade').textContent='';if(kind==='pen')buildFloor(1+P.maxRank*2,true);else buildFloor(RUN.r*2+1+RUN.i*.6,false,{w:RUN.w??0,fams:RUN.fams||['gob']});
     try{renderer.compile(scene,cam);renderer.compile(gunScene,gunCam)}catch(e){}
     if(kind==='pen'||RUN.i===0){P.hp=maxHP();P.mp=maxMP()}else{P.hp=Math.min(maxHP(),P.hp+maxHP()*.25);P.mp=maxMP()}
     P.skCd=[0,0,0,0];P.fury=0;P.dash=null;save();hudKey='';hud();ov.hidden=true;state='play';last=performance.now();
-    if(!coarse)canvas.requestPointerLock?.();$('fade').style.opacity=0;
+    if(!coarse)lockPtr();$('fade').style.opacity=0;
     if(kind==='pen')note('Zona de Penalidade','A missão diária não foi cumprida. Sobreviva por 60 segundos.');
     else note(`Portal rank ${L.th.rank}: ${L.th.name}`,`${RUN.i===0?'Habitantes: '+L.famNames.join(' e ')+'. ':''}Andar ${RUN.i+1} de ${RUN.floors}. Derrote ${L.boss.name}${L.final?' para fechar o portal.':' para descer.'}`);
     if(RUN&&RUN.tutorial&&kind!=='pen')setTimeout(()=>note('Dica','Inimigos erguem a arma antes de golpear. Esquive nesse momento.'),4200);
@@ -1472,7 +1476,7 @@ function sync(dt,now){const t=now/1000;
     m.arms[1].rotation.x=ra;m.arms[0].rotation.x=la;
     m.g.position.y=e.moving?Math.abs(Math.sin(e.anim*9))*.03:0;m.g.rotation.z=e.stun>0?Math.sin(t*5)*.18:0;m.root.position.y=(e.airY||0)+(e.hopY||0);if((e.airY||0)>.05){m.g.rotation.x=-.5;m.g.rotation.z=Math.sin(t*9)*.3}else m.g.rotation.x=0;if(e.stun>0){m.arms[0].rotation.x=m.arms[1].rotation.x=.35}
     if(m.body==='blob'){const b=e.moving?Math.abs(Math.sin(e.anim*6)):0,sq=e.state==='windup'?.18:0;m.g.scale.set(e.sc*(1+.1*b+sq*.5),e.sc*(1-.15*b-sq),e.sc*(1+.1*b+sq*.5));m.g.position.y=b*.15}
-    const hc=e.hurt>0?0x803020:e.stun>0?0x3a2a06:(e.atk==='boom'&&e.state==='windup'?(Math.sin(t*30)>0?0xff4000:0):(e.state==='windup'?0x401008:0));for(const mt of m.mats)mt.emissive.setHex(hc||mt.userData.em||0);
+    const hc=e.hurt>0?0x803020:e.stun>0?0x3a2a06:(e.atk==='boom'&&e.state==='windup'?(Math.sin(t*30)>0?0xff4000:0):(e.state==='windup'?0x401008:0));for(const mt of m.mats){mt.emissive.setHex(hc||mt.userData.em||0);if(hc&&m.mix)mt.emissive.multiplyScalar(.45)}
     m.bar.visible=!!e.showBar&&Math.hypot(e.x-P.x,e.y-P.y)>1.4;if(m.bar.visible){const fr=Math.max(0,e.hp/e.max);m.fg.scale.x=.7*fr;m.pf.scale.x=e.stun>0?.7*(e.stun/2.6):.7*Math.min(1,e.post/e.postMax);m.pf.material.color.setHex(e.stun>0?0xff8a3a:0xf5c451)}
     if(m.orb)m.orb.scale.setScalar(e.state==='windup'?1.4+Math.sin(t*30)*.2:1)}
   for(const a of L.allies){const m=a.m;m.root.position.set(a.x,0,a.y);if(a.faceT!==undefined)a.face+=angDiff(a.faceT,a.face)*Math.min(1,dt*8);m.g.rotation.y=a.face;

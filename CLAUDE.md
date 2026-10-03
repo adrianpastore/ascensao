@@ -216,7 +216,7 @@ models/
 
 ### Situação atual
 - **Feito**: three.js atualizado; carregador de modelos com cache (`MDL`, `loadModel`, `loadModelsFor`), `buildModelMob` (clone com `SkeletonUtils`, materiais próprios por inimigo, altura normalizada pela caixa do modelo), `mobAnim` (troca de clipe com transição), espera dos modelos em `enterFloor` (tela "Carregando...", limite de 20 s por arquivo) e fallback para `buildMob` primitivo. Testado com o robô CC0 dos exemplos do three.js.
-- **Modelos em uso** (tabela `MODELOS` logo depois de `MOBS`): Goblinoides, Mortos-vivos, Limos e Fungos e Demônios completos; lobos (Feras, Feras do Gelo, Cão Infernal), Yeti e Elfos. **Ainda primitivos** (sem modelo nos packs): Aracnídeos, Formigas, Urso Cavernoso, Javali, Urso Polar e Mamute.
+- **Modelos em uso** (tabela `MODELOS` logo depois de `MOBS`): Goblinoides, Mortos-vivos, Limos e Fungos, Demônios (Cão Infernal é o lobo tingido) e Elfos. Feras e Feras do Gelo ficaram sem modelo para não misturar estilos no mesmo mapa. **Decisão de arte (03/10/2026): migrar para modelos de estilo sombrio**; os atuais (cartoon) são provisórios. Campos extras: `emissive` (brilho base) e `aura` (brilho em volta, usado nos chefes).
 - Packs e licenças em `CREDITS.md`. Zips originais ficam fora do repositório (`../packs-originais/`, e `*.zip` está no `.gitignore`).
 - **Converter modelos novos**: `ferramentas/converter-modelos.mjs` (glTF-Transform): mantém só as animações listadas, prende armas KayKit nos ossos `handslot.r`/`handslot.l`, junta as animações KayKit num arquivo sem malha (`kaykit-animacoes.glb`) e comprime com meshopt. O jogo carrega o `MeshoptDecoder` (opcional, como o `GLTFLoader`).
 
