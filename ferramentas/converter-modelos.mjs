@@ -14,10 +14,9 @@ const UM=PK+'/Ultimate_Monsters/Ultimate Monsters',AN=PK+'/Ultimate_Animated_Ani
 const BIG=['Idle','Walk','Run','Punch','Weapon','HitReact','Death'],BLOB=['Idle','Walk','Bite_Front','HitRecieve','Death'],ANI=['Idle','Walk','Gallop','Attack','Idle_HitReact1','Death'];
 const KK=['Idle_A','Walking_A','Running_A','Throw','Hit_A','Death_A'];
 const JOBS=[
- ['orc',UM+'/Big/glTF/Orc.gltf',BIG],['orc-caveira',UM+'/Big/glTF/Orc_Skull.gltf',BIG],['tribal',UM+'/Big/glTF/Tribal.gltf',BIG],['yeti',UM+'/Big/glTF/Yeti.gltf',BIG],
+ ['orc',UM+'/Big/glTF/Orc.gltf',BIG],['orc-caveira',UM+'/Big/glTF/Orc_Skull.gltf',BIG],['tribal',UM+'/Big/glTF/Tribal.gltf',BIG],
  ['demonio',UM+'/Big/glTF/Demon.gltf',BIG],['demonio-azul',UM+'/Big/glTF/BlueDemon.gltf',BIG],
  ['limo',UM+'/Blob/glTF/GreenBlob.gltf',BLOB],['limo-espinhos',UM+'/Blob/glTF/GreenSpikyBlob.gltf',BLOB],['cogumelo',UM+'/Blob/glTF/Mushnub.gltf',BLOB],['cogumelo-espinhos',UM+'/Blob/glTF/Mushnub_Evolved.gltf',BLOB],
- ['lobo',AN+'/Wolf.gltf',ANI],['lobo-branco',AN+'/Husky.gltf',ANI],
  ['esqueleto',KS+'/characters/gltf/Skeleton_Minion.glb',[],[['handslot.r',KS+'/assets/gltf/Skeleton_Blade.gltf']]],
  ['esqueleto-arqueiro',KS+'/characters/gltf/Skeleton_Rogue.glb',[],[['handslot.r',KS+'/assets/gltf/Skeleton_Crossbow.gltf']]],
  ['esqueleto-guerreiro',KS+'/characters/gltf/Skeleton_Warrior.glb',[],[['handslot.r',KS+'/assets/gltf/Skeleton_Axe.gltf'],['handslot.l',KS+'/assets/gltf/Skeleton_Shield_Large_A.gltf']]],
@@ -26,7 +25,8 @@ const JOBS=[
  ['elfo-arqueiro',KA+'/Characters/gltf/Ranger.glb',[],[['handslot.l',KA+'/Assets/gltf/bow_withString.gltf']]],
  ['elfo-mago',KA+'/Characters/gltf/Mage.glb',[],[['handslot.r',KA+'/Assets/gltf/staff.gltf']]],
 ];
-const keepAnims=(doc,names)=>{for(const a of doc.getRoot().listAnimations())if(!names.includes(a.getName()))a.dispose()};
+// descarta também canais e samplers; sem isso os dados da animação ficam presos no arquivo
+const keepAnims=(doc,names)=>{for(const a of doc.getRoot().listAnimations())if(!names.includes(a.getName())){a.listChannels().forEach(c=>c.dispose());a.listSamplers().forEach(s=>s.dispose());a.dispose()}};
 const finish=async(doc,name)=>{await doc.transform(unpartition(),resample(),dedup(),prune(),meshopt({encoder:MeshoptEncoder,level:'medium'}));
   const f=path.join(OUT,name+'.glb');await io.write(f,doc);return Math.round(fs.statSync(f).size/1024)};
 fs.mkdirSync(OUT,{recursive:true});

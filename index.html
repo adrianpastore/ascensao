@@ -298,17 +298,25 @@ const MOBS={
  flamelord:{name:'Senhor das Chamas',body:'biped',look:{skin:0x8a2010,cloth:0x200808,eye:0xffe040,horns:1,crown:1,pads:1,weapon:'axe'},s:2,hp:540,dmg:26,spd:2,range:2.3,xp:170,r:.62,windup:.8,cd:1.6,kind:'boss',abil:['slam','charge','volley','summon'],proj:{col:0xff6010,speed:8}}};
 // modelos 3D por inimigo (créditos em CREDITS.md); inimigos fora desta tabela usam as formas primitivas
 {const UMB={idle:'Idle',walk:'Walk',run:'Run',attack:'Punch',hit:'HitReact',death:'Death'},UMW={...UMB,attack:'Weapon'},
-  BLB={idle:'Idle',walk:'Walk',attack:'Bite_Front',hit:'HitRecieve',death:'Death'},ANM={idle:'Idle',walk:'Walk',run:'Gallop',attack:'Attack',hit:'Idle_HitReact1',death:'Death'},
+  BLB={idle:'Idle',walk:'Walk',attack:'Bite_Front',hit:'HitRecieve',death:'Death'},
   KK={idle:'Idle_A',walk:'Walking_A',run:'Running_A',attack:'Throw',hit:'Hit_A',death:'Death_A'},
+  ARA={idle:'Idle',walk:'Walk',attack:'Atack',death:'Dead'},FOR={idle:'idle',walk:'Walk',attack:'Attack1'},
+  LOB={idle:'04_Idle',walk:'02_walk',run:'01_Run',attack:'01_Run'},URS={idle:'Stand_Idle_01',walk:'Walk',run:'Run',attack:'Attack_StandAngry_01_High',hit:'Hit_Stand_F01',death:'Death_Stand_R01'},
+  JAV={idle:'Armature|observing',walk:'Armature|walk',run:'Armature|run',attack:'Armature|alerted',hit:'Armature|wound',death:'Armature|laydown'},
+  CAO={idle:'idle01',walk:'walk_7',run:'run_fast',attack:'attack01',hit:'hit01',death:'death_1_1'},
   m=(f,clips,o={})=>({file:'models/'+f+'.glb',clips,...o}),k=(f,o={})=>m(f,KK,{anims:'models/kaykit-animacoes.glb',...o});
  const MODELOS={
   goblin:m('orc',UMW),orc:m('orc-caveira',UMW),shaman:m('tribal',UMB,{h:1.25}),boss:m('orc',UMW,{tint:0xffd070,aura:0xffb030}),
   skeleton:k('esqueleto'),skarcher:k('esqueleto-arqueiro'),deadknight:k('esqueleto-guerreiro'),lich:k('esqueleto-mago',{aura:0x9050ff}),
-  hellhound:m('lobo',ANM,{tint:0xff3018,emissive:0x380600}),
+  spider:m('aranha',ARA),weaver:m('aranha',ARA,{tint:0xc0a8ff}),brood:m('aranha',ARA,{tint:0x8c8c8c}),spiderqueen:m('aranha',ARA,{aura:0xff3020}),
+  ant:m('formiga',FOR),antsoldier:m('formiga',FOR,{tint:0xc05038}),antspitter:m('formiga',{...FOR,attack:'Formic Acid'},{tint:0x90b048}),antqueen:m('formiga-rainha',{...FOR,attack:'Attack2'},{aura:0xffa020}),
+  wolfm:m('lobo-sombrio',LOB,{rot:Math.PI/2}),alpha:m('lobo-sombrio',LOB,{rot:Math.PI/2,tint:0x707080,aura:0xff3020}),boar:m('javali',JAV),bear:m('urso',URS),
+  icewolf:m('lobo-sombrio',LOB,{rot:Math.PI/2,tint:0xd8e8ff,emissive:0x0a1a30}),polarbear:m('urso-polar',URS),
+  hellhound:m('cao-infernal',CAO),
   slime:m('limo',BLB),slimelet:m('limo',BLB),slimeking:m('limo-espinhos',BLB,{aura:0x60ff60}),shroom:m('cogumelo',BLB),sporer:m('cogumelo-espinhos',BLB),
   imp:m('demonio',UMW),brute:m('demonio-azul',UMW),flamelord:m('demonio',UMW,{tint:0xff9050,emissive:0x401000,aura:0xff5010}),
   elfspear:k('elfo-lanceiro',{tint:0x7fb8ff,emissive:0x10284a}),elfarcher:k('elfo-arqueiro',{tint:0x9cc8ff,emissive:0x10284a}),elfmage:k('elfo-mago',{tint:0xa8d4ff,emissive:0x10284a}),snowqueen:k('elfo-mago',{tint:0x9fd0ff,emissive:0x0a1830,aura:0x80d0ff})};
- // Feras e Feras do Gelo ficam sem modelo até haver modelos para a família inteira (sem misturar estilos no mesmo mapa)
+ // Yeti e Mamute ainda sem modelo; os cartoon (Quaternius/KayKit) são provisórios até chegarem os modelos sombrios do Mixamo
  for(const t in MODELOS)if(MOBS[t])MOBS[t].model=MODELOS[t]}
 const FAMS={
  gob:{name:'Goblinoides',types:['goblin','orc','shaman'],w:[.5,.25,.25],boss:'boss'},
