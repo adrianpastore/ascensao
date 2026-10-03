@@ -210,10 +210,10 @@ button:focus-visible{outline:2px solid var(--xp);outline-offset:3px}
 <script type="module">
 (async()=>{
 const $=id=>document.getElementById(id);
-let THREE,GLTFLoader=null,SkeletonUtils=null;
+let THREE,GLTFLoader=null,SkeletonUtils=null,MeshoptDecoder=null;
 try{THREE=await import('three')}catch(e){$('ovText').textContent='Não foi possível carregar o motor 3D. Verifique a conexão e recarregue a página.';return}
 // modelos 3D são opcionais: se o carregador falhar, os inimigos usam as formas primitivas
-try{const[a,b]=await Promise.all([import('three/addons/loaders/GLTFLoader.js'),import('three/addons/utils/SkeletonUtils.js')]);GLTFLoader=a.GLTFLoader;SkeletonUtils=b}catch(e){GLTFLoader=null}
+try{const[a,b,c]=await Promise.all([import('three/addons/loaders/GLTFLoader.js'),import('three/addons/utils/SkeletonUtils.js'),import('three/addons/libs/meshopt_decoder.module.js')]);GLTFLoader=a.GLTFLoader;SkeletonUtils=b;MeshoptDecoder=c.MeshoptDecoder}catch(e){GLTFLoader=null}
 // mantém o visual da r128: cores sem conversão sRGB e luzes no modo antigo (fator π e atenuação linear por distância)
 THREE.ColorManagement.enabled=false;
 {const C=THREE.ShaderChunk,src=C.lights_pars_begin;
@@ -296,6 +296,19 @@ const MOBS={
  hellhound:{name:'Cão Infernal',body:'quad',look:{skin:0x3a1010,eye:0xffa020,ears:1,tail:1,spikes:1},s:1,hp:36,dmg:10,spd:3.6,range:1.15,xp:16,r:.34,windup:.3,cd:.9,kind:'leaper',tip:'Rápido e salta em cima de você.'},
  brute:{name:'Demônio Ferreiro',body:'biped',look:{skin:0x6a2a20,cloth:0x2a2020,eye:0xff8020,horns:1,shield:1,weapon:'hammer',pads:1},s:1.3,hp:120,dmg:20,spd:1.5,range:1.6,xp:34,r:.42,windup:.7,cd:1.7,kind:'melee',shield:.7,tip:'Escudo frontal pesado. Ataque pelos lados.'},
  flamelord:{name:'Senhor das Chamas',body:'biped',look:{skin:0x8a2010,cloth:0x200808,eye:0xffe040,horns:1,crown:1,pads:1,weapon:'axe'},s:2,hp:540,dmg:26,spd:2,range:2.3,xp:170,r:.62,windup:.8,cd:1.6,kind:'boss',abil:['slam','charge','volley','summon'],proj:{col:0xff6010,speed:8}}};
+// modelos 3D por inimigo (créditos em CREDITS.md); inimigos fora desta tabela usam as formas primitivas
+{const UMB={idle:'Idle',walk:'Walk',run:'Run',attack:'Punch',hit:'HitReact',death:'Death'},UMW={...UMB,attack:'Weapon'},
+  BLB={idle:'Idle',walk:'Walk',attack:'Bite_Front',hit:'HitRecieve',death:'Death'},ANM={idle:'Idle',walk:'Walk',run:'Gallop',attack:'Attack',hit:'Idle_HitReact1',death:'Death'},
+  KK={idle:'Idle_A',walk:'Walking_A',run:'Running_A',attack:'Throw',hit:'Hit_A',death:'Death_A'},
+  m=(f,clips,o={})=>({file:'models/'+f+'.glb',clips,...o}),k=(f,o={})=>m(f,KK,{anims:'models/kaykit-animacoes.glb',...o});
+ const MODELOS={
+  goblin:m('orc',UMW),orc:m('orc-caveira',UMW),shaman:m('tribal',UMB,{h:1.25}),boss:m('orc',UMW,{tint:0xffe6a0}),
+  skeleton:k('esqueleto'),skarcher:k('esqueleto-arqueiro'),deadknight:k('esqueleto-guerreiro'),lich:k('esqueleto-mago'),
+  wolfm:m('lobo',ANM),alpha:m('lobo',ANM,{tint:0x8a7a70}),hellhound:m('lobo',ANM,{tint:0xff5a3a}),icewolf:m('lobo-branco',ANM),
+  slime:m('limo',BLB),slimelet:m('limo',BLB),slimeking:m('limo-espinhos',BLB),shroom:m('cogumelo',BLB),sporer:m('cogumelo-espinhos',BLB),
+  yeti:m('yeti',UMB),imp:m('demonio',UMW),brute:m('demonio-azul',UMW),flamelord:m('demonio',UMW,{tint:0xffb080}),
+  elfspear:k('elfo-lanceiro',{tint:0xb8dcff}),elfarcher:k('elfo-arqueiro',{tint:0xd8ecff}),elfmage:k('elfo-mago'),snowqueen:k('elfo-mago',{tint:0xc0e8ff})};
+ for(const t in MODELOS)if(MOBS[t])MOBS[t].model=MODELOS[t]}
 const FAMS={
  gob:{name:'Goblinoides',types:['goblin','orc','shaman'],w:[.5,.25,.25],boss:'boss'},
  ara:{name:'Aracnídeos',types:['spider','weaver','brood'],w:[.45,.3,.25],boss:'spiderqueen'},
@@ -761,11 +774,11 @@ function mobBar(root,y){const bar=new THREE.Group();bar.position.y=y;root.add(ba
   const pf=sprite(null,0xf5c451,1,1,false);pf.center.set(0,.5);pf.position.set(-.35,-.068,0);pf.scale.set(0,.028,1);
   bg.scale.y=.11;bg.position.y=-.02;bg.material.depthTest=fg.material.depthTest=pf.material.depthTest=true;bar.add(bg,fg,pf);bar.visible=false;return{bar,fg,pf}}
 // ---- modelos 3D (.glb) opcionais ----
-// MOBS[t].model={file:'models/x.glb', h?:altura antes da escala do mob, scale?, y?, rot?, hitAt?:fração do clipe de ataque em que o golpe acerta,
-//   clips:{idle,walk,run?,attack,hit?,death?}}. Sem arquivo, com erro ou sem carregador: buildMob usa as formas primitivas.
+// MOBS[t].model={file:'models/x.glb', anims?:'models/animações-compartilhadas.glb', h?:altura antes da escala do mob, scale?, y?, rot?, tint?:cor multiplicada,
+//   hitAt?:fração do clipe de ataque em que o golpe acerta, clips:{idle,walk,run?,attack,hit?,death?}}. Sem arquivo, com erro ou sem carregador: buildMob usa as formas primitivas.
 const ANIM_CAP=coarse?15:30;let animF=0;
 const MDL={},MDL_H={biped:1.1,quad:.85,spider:.6,insect:.6,blob:.65,shroom:.6};
-const gltfL=GLTFLoader&&SkeletonUtils?new GLTFLoader():null;
+const gltfL=GLTFLoader&&SkeletonUtils?new GLTFLoader().setMeshoptDecoder(MeshoptDecoder):null;
 function loadModel(file){if(MDL[file])return MDL[file].p;const c=MDL[file]={st:'load'};
   c.p=!gltfL?Promise.resolve(c.st='fail'):new Promise(res=>{const to=setTimeout(()=>{c.st='fail';console.warn('Modelo demorou demais: '+file);res()},20000);
     gltfL.load(file,gl=>{clearTimeout(to);if(c.st!=='load')return;
@@ -773,15 +786,15 @@ function loadModel(file){if(MDL[file])return MDL[file].p;const c=MDL[file]={st:'
       undefined,()=>{clearTimeout(to);c.st='fail';console.warn('Modelo não carregado: '+file);res()})});
   return c.p}
 function loadModelsFor(fams){const ts=new Set();for(const k of fams||[]){const f=FAMS[k];if(f){f.types.forEach(t=>ts.add(t));ts.add(f.boss)}}
-  const ps=[...ts].filter(t=>MOBS[t]&&MOBS[t].model).map(t=>loadModel(MOBS[t].model.file));return ps.length?Promise.all(ps):null}
-function buildModelMob(d,mc){try{const sp=d.model,root=new THREE.Group(),g=new THREE.Group();root.add(g);g.scale.setScalar(d.s);
+  const ps=[...ts].filter(t=>MOBS[t]&&MOBS[t].model).flatMap(t=>{const sp=MOBS[t].model;return sp.anims?[loadModel(sp.file),loadModel(sp.anims)]:[loadModel(sp.file)]});return ps.length?Promise.all(ps):null}
+function buildModelMob(d,mc){try{const sp=d.model,ext=sp.anims&&MDL[sp.anims],clips=ext&&ext.st==='ok'?mc.clips.concat(ext.clips):mc.clips,root=new THREE.Group(),g=new THREE.Group();root.add(g);g.scale.setScalar(d.s);
   const h=sp.h||MDL_H[d.body]||1,k=h/mc.h*(sp.scale||1),inner=new THREE.Group(),obj=SkeletonUtils.clone(mc.scene);
   inner.scale.setScalar(k);inner.position.y=-mc.y0*k+(sp.y||0);inner.rotation.y=sp.rot||0;inner.add(obj);g.add(inner);
   // materiais próprios por inimigo, para o piscar de dano não afetar os outros
-  const mats=[],cp=new Map(),own=mt=>{if(!cp.has(mt)){const c=mt.clone();cp.set(mt,c);if(c.emissive){c.userData.em=c.emissive.getHex();mats.push(c)}}return cp.get(mt)};
+  const mats=[],cp=new Map(),own=mt=>{if(!cp.has(mt)){const c=mt.clone();cp.set(mt,c);if(sp.tint&&c.color)c.color.multiply(new THREE.Color(sp.tint));if(c.emissive){c.userData.em=c.emissive.getHex();mats.push(c)}}return cp.get(mt)};
   obj.traverse(o=>{if(!o.isMesh)return;o.frustumCulled=false;o.material=Array.isArray(o.material)?o.material.map(own):own(o.material)});
   const mix=new THREE.AnimationMixer(obj),act={},cl=sp.clips||{};
-  for(const n of['idle','walk','run','attack','hit','death']){const c=cl[n]&&mc.clips.find(a=>a.name===cl[n]);if(c)act[n]=mix.clipAction(c)}
+  for(const n of['idle','walk','run','attack','hit','death']){const c=cl[n]&&clips.find(a=>a.name===cl[n]);if(c)act[n]=mix.clipAction(c)}
   if(!act.idle&&!act.walk)return null;
   const piv=()=>{const q=new THREE.Group();g.add(q);return q};
   return{root,g,legs:[],arms:[piv(),piv()],orb:null,...mobBar(root,h*d.s+.15),mats,body:d.body,mix,act,cur:null,sp,acc:0}}

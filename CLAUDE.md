@@ -216,15 +216,19 @@ models/
 
 ### Situação atual
 - **Feito**: three.js atualizado; carregador de modelos com cache (`MDL`, `loadModel`, `loadModelsFor`), `buildModelMob` (clone com `SkeletonUtils`, materiais próprios por inimigo, altura normalizada pela caixa do modelo), `mobAnim` (troca de clipe com transição), espera dos modelos em `enterFloor` (tela "Carregando...", limite de 20 s por arquivo) e fallback para `buildMob` primitivo. Testado com o robô CC0 dos exemplos do three.js.
-- **Falta**: escolher e baixar os pacotes, colocar em `models/`, preencher o campo `model` em cada entrada de `MOBS` e registrar as licenças em `CREDITS.md`.
+- **Modelos em uso** (tabela `MODELOS` logo depois de `MOBS`): Goblinoides, Mortos-vivos, Limos e Fungos e Demônios completos; lobos (Feras, Feras do Gelo, Cão Infernal), Yeti e Elfos. **Ainda primitivos** (sem modelo nos packs): Aracnídeos, Formigas, Urso Cavernoso, Javali, Urso Polar e Mamute.
+- Packs e licenças em `CREDITS.md`. Zips originais ficam fora do repositório (`../packs-originais/`, e `*.zip` está no `.gitignore`).
+- **Converter modelos novos**: `ferramentas/converter-modelos.mjs` (glTF-Transform): mantém só as animações listadas, prende armas KayKit nos ossos `handslot.r`/`handslot.l`, junta as animações KayKit num arquivo sem malha (`kaykit-animacoes.glb`) e comprime com meshopt. O jogo carrega o `MeshoptDecoder` (opcional, como o `GLTFLoader`).
 
 ### Campo `model` em `MOBS`
 ```js
-model:{file:'models/esqueleto.glb', clips:{idle:'Idle', walk:'Walk', run:'Run', attack:'Attack', hit:'HitReact', death:'Death'},
-       h:1.1, scale:1, y:0, rot:0, hitAt:.5}
+model:{file:'models/esqueleto.glb', anims:'models/kaykit-animacoes.glb', clips:{idle:'Idle', walk:'Walk', run:'Run', attack:'Attack', hit:'HitReact', death:'Death'},
+       h:1.1, scale:1, y:0, rot:0, tint:0xffffff, hitAt:.5}
 ```
 - `clips`: nomes exatos dos clipes no arquivo. Obrigatório ter `idle` ou `walk`; `run` (investida), `hit` e `death` são opcionais (sem `death`, o corpo tomba como antes).
 - `h`: altura do modelo antes da escala `s` do inimigo (padrão por corpo em `MDL_H`). `scale`, `y` e `rot` (radianos) corrigem modelos desalinhados; a frente do modelo deve ser +Z.
+- `anims`: arquivo extra só com animações, para modelos que compartilham o mesmo esqueleto (KayKit). Os clipes são ligados pelos nomes dos ossos.
+- `tint`: cor multiplicada nos materiais (ex.: Cão Infernal é o lobo avermelhado).
 - `hitAt`: fração do clipe de ataque em que o golpe acerta; o clipe é acelerado para esse ponto coincidir com o fim do `windup`.
 - Desempenho: só animam inimigos visíveis; acima de `ANIM_CAP` (30 no computador, 15 no celular) metade anima em quadros alternados.
 
