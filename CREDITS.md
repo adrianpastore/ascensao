@@ -22,22 +22,21 @@ Personagens e animações de [Mixamo](https://www.mixamo.com), usados sob a lice
 
 | Personagem | Arquivo em `models/` | Usado em |
 |---|---|---|
-| Goblin D Shareyko | `goblin` | Goblin |
-| Warrok W Kurniawan | `orc` | Orc |
-| Ganfaul M Aure | `xama` | Xamã |
-| Mutant | `mutante`, `yeti` (textura clareada) | Rei Goblin, Yeti |
-| Skeletonzombie T Avelange | `esqueleto-zumbi` | Esqueleto, Arqueiro Esqueleto |
-| Knight D Pelegrini | `cavaleiro` | Cavaleiro Morto |
-| Nightshade J Friedrich | `feiticeira` | Lich Ancestral, Feiticeira Élfica, Rainha da Neve |
+| Goblin D Shareyko | `goblin` | Goblin, Xamã |
+| Warrok W Kurniawan | `orc` | Orc, Rei Goblin |
+| Mutant | `yeti` (textura clareada) | Yeti |
+| Skeletonzombie T Avelange | `esqueleto-zumbi` | Esqueleto, Arqueiro Esqueleto, Cavaleiro Morto, Lich Ancestral |
+| Nightshade J Friedrich | `feiticeira` | Feiticeira do Gelo, Rainha da Neve |
 | Maw J Laygo | `demonio-ferreiro` | Demônio Ferreiro |
 | Demon T Wiezzorek | `demonio` | Diabrete, Senhor das Chamas |
-| Vampire A Lusth | `vampiro` | Lanceiro Élfico |
-| Erika Archer | `arqueira` | Arqueira Élfica |
+| Vampire A Lusth | `vampiro` | Lanceiro do Gelo |
+| Erika Archer | `arqueira` | Arqueira do Gelo |
 
 Animações (`mixamo-animacoes.glb`): Standing Idle, Walking, Running, Standing Melee Attack Horizontal, Dying, Standing 1H Magic Attack 01, Standing Draw Arrow, Mutant Idle/Walking/Run/Swiping/Dying, Zombie Idle/Walk/Attack/Reaction Hit/Dying.
 
 ## Baixados e descartados
 
+- **Knight D Pelegrini** e **Ganfaul M Aure** (Mixamo): não combinavam com as famílias (cavaleiro humano entre mortos-vivos, xamã que não parece goblin).
 - **Ultimate Monsters** (Quaternius) e **KayKit Skeletons / Adventurers** (Kay Lousberg), todos CC0: usados nas primeiras versões, trocados pelo estilo sombrio.
 - **bigfoot v1** (Sketchfab): as texturas são do jogo Black Desert Online; o modelo foi extraído de um jogo comercial e não pertence a quem o publicou.
 - **Woolly Mammoth** e **Polar Bear – Stylized** (Sketchfab): nomes de textura de asset comercial (`CH_NPC_MOB_…_MI_…`) e o mesmo mamute repostado por várias contas; origem duvidosa.

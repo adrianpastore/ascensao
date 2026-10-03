@@ -10,8 +10,8 @@ import {MeshoptEncoder, MeshoptDecoder, MeshoptSimplifier} from 'meshoptimizer';
 import sharp from 'sharp';import fs from 'fs';import path from 'path';
 const [SRC,OUT,only]=process.argv.slice(2);const ONLY=only?only.split(','):null;await Promise.all([MeshoptEncoder.ready,MeshoptDecoder.ready,MeshoptSimplifier.ready]);
 const io=new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({'meshopt.encoder':MeshoptEncoder,'meshopt.decoder':MeshoptDecoder});
-const CHARS=[['goblin','goblin_d_shareyko'],['orc','Warrok_W_Kurniawan'],['xama','Ganfaul_M_Aure'],['mutante','Mutant',768],['yeti','Mutant',768,true],['esqueleto-zumbi','Skeletonzombie_T_Avelange'],
- ['cavaleiro','Knight_D_Pelegrini'],['feiticeira','Nightshade_J_Friedrich'],['demonio-ferreiro','Maw_J_Laygo'],['demonio','Demon_T_Wiezzorek'],['arqueira','Erika_Archer_With_Bow_Arrow'],['vampiro','Vampire_A_Lusth']];
+const CHARS=[['goblin','goblin_d_shareyko'],['orc','Warrok_W_Kurniawan'],['yeti','Mutant',768,true],['esqueleto-zumbi','Skeletonzombie_T_Avelange'],
+['feiticeira','Nightshade_J_Friedrich'],['demonio-ferreiro','Maw_J_Laygo'],['demonio','Demon_T_Wiezzorek'],['arqueira','Erika_Archer_With_Bow_Arrow'],['vampiro','Vampire_A_Lusth']];
 const ANIMS=['Standing_Idle','Walking','Running','Standing_Melee_Attack_Horizontal','Dying','Standing_1H_Magic_Attack_01','Standing_Draw_Arrow',
  'Mutant_Idle','Mutant_Walking','Mutant_Run','Mutant_Swiping','Mutant_Dying','Zombie_Idle','Zombie_Walk','Zombie_Attack','Zombie_Reaction_Hit','Zombie_Dying'];
 const dropAnims=doc=>{for(const a of doc.getRoot().listAnimations()){a.listChannels().forEach(c=>c.dispose());a.listSamplers().forEach(s=>s.dispose());a.dispose()}};

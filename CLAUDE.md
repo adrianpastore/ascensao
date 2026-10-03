@@ -103,13 +103,15 @@ Habilidades liberam nos níveis 2, 4, 6 e 9 do personagem.
 - Modificadores: `shield` (reduz dano frontal), `revive` (se remonta 1×), `split` (divide ao morrer), `heal` (cura aliados), `proj` (cor, velocidade, `slow`, `poison`).
 - Chefes (`abil`): `slam` (área marcada no chão), `charge`, `volley` (leque de projéteis), `summon` (chama o 1º tipo da família aos 60% e 30% de vida).
 - **Elites**: chance `4% + 6% × rank`; ×2,2 vida, ×1,35 dano, ×2,5 XP, ×2 ouro, aura vermelha.
-- Famílias (`FAMS`, 3 tipos + chefe cada): Goblinoides, Aracnídeos, Mortos-vivos, Formigas Gigantes, Feras, Limos e Fungos, Demônios, Feras do Gelo, Elfos do Gelo.
+- Famílias (`FAMS`, 3 tipos + chefe cada): Goblinoides, Aracnídeos, Mortos-vivos, Formigas Gigantes, Feras, Limos e Fungos, Demônios, Feras do Gelo, Caçadores do Gelo (humanos; chave interna `elf`).
 - Primeira vez que encontra um tipo: o Sistema mostra nome e dica (`P.seen`).
 
 ### Mundos e portais
 - Cada portal sorteia **rank** (força), **mundo** (`WORLDS`) e a **família de cada região**. O rank não define o visual.
+- **Regra de tema**: cada mundo/região só lista famílias que combinam com ele (Catacumbas e Cripta Gelada: Mortos-vivos; Forja Vulcânica e Abismo Violeta: Demônios; Salão do Trono: Goblinoides; Ninho Subterrâneo: Aranhas, Formigas ou Limos; etc.). Ofertas salvas fora do tema são sorteadas de novo ao abrir a cidade. O tutorial acontece no Salão do Trono.
+- **Regra de modelos**: cada família usa modelos só dela (variações por cor, tamanho e aura); o mesmo boneco não aparece em famílias diferentes.
 - Estilos de mapa: `dungeon` (teto 3–6 m, pilares), `cave` (orgânico, estalactites), `open` (céu, sol, obstáculos como árvores, pinheiros, gelo, rochas, ruínas).
-- Mundos abertos podem ter **duas regiões** (`zoneAt`), cada uma com sua família e seus obstáculos. Ex.: Tundra = Campo de Gelo (Feras do Gelo) + Floresta Congelada (Elfos do Gelo).
+- Mundos abertos podem ter **duas regiões** (`zoneAt`), cada uma com sua família e seus obstáculos. Ex.: Tundra = Campo de Gelo (Feras do Gelo) + Floresta Congelada (Caçadores do Gelo).
 - Arena do chefe maior, cercada por braseiros.
 - Andares intermediários têm Sentinela (70% da vida); o último tem o chefe (120%).
 - Ouro coletado só é garantido ao sair; morrer perde o ouro do portal.
@@ -216,7 +218,7 @@ models/
 
 ### Situação atual
 - **Feito**: three.js atualizado; carregador de modelos com cache (`MDL`, `loadModel`, `loadModelsFor`), `buildModelMob` (clone com `SkeletonUtils`, materiais próprios por inimigo, altura normalizada pela caixa do modelo), `mobAnim` (troca de clipe com transição), espera dos modelos em `enterFloor` (tela "Carregando...", limite de 20 s por arquivo) e fallback para `buildMob` primitivo. Testado com o robô CC0 dos exemplos do three.js.
-- **Modelos em uso** (tabela `MODELOS` logo depois de `MOBS`). **Estilo sombrio** (decisão de 03/10/2026). Humanoides do **Mixamo** (Goblinoides, Mortos-vivos, Demônios, Elfos, Yeti), com todas as animações em `models/mixamo-animacoes.glb` (conjuntos HUM, MAG, ARC, MUT, ZMB); criaturas do **Sketchfab** (Aracnídeos, Formigas, Feras, Lobo do Gelo, Urso Polar, Cão Infernal). **Sem modelo**: Mamute, Limos e Cogumelos (formas primitivas). Campos extras: `emissive` (brilho base) e `aura` (brilho em volta, usado nos chefes).
+- **Modelos em uso** (tabela `MODELOS` logo depois de `MOBS`). **Estilo sombrio** (decisão de 03/10/2026). Humanoides do **Mixamo** (Goblinoides, Mortos-vivos, Demônios, Caçadores do Gelo, Yeti), com todas as animações em `models/mixamo-animacoes.glb` (conjuntos HUM, MAG, ARC, MUT, ZMB); criaturas do **Sketchfab** (Aracnídeos, Formigas, Feras, Lobo do Gelo, Urso Polar, Cão Infernal). **Sem modelo**: Mamute, Limos e Cogumelos (formas primitivas). Campos extras: `emissive` (brilho base) e `aura` (brilho em volta, usado nos chefes).
 - Conversão: `ferramentas/converter-mixamo.mjs` (FBX2glTF + simplificação + texturas WebP; junta as animações e tira o deslocamento horizontal do quadril) e `ferramentas/converter-sketchfab.mjs` (materiais specular-glossiness, malhas extras, texturas clareadas para urso polar e yeti). Ao descartar animações, descartar também canais e samplers. `modelClips()` remove trilhas de ossos que o modelo não tem (dedos), para não poluir o console. Modelos do Sketchfab podem ter a frente em outro eixo: conferir em jogo e usar `rot` (o lobo usa `Math.PI/2`).
 - Packs e licenças em `CREDITS.md`. Zips originais ficam fora do repositório (`../packs-originais/`, e `*.zip` está no `.gitignore`).
 - **Converter modelos novos**: `ferramentas/converter-modelos.mjs` (glTF-Transform): mantém só as animações listadas, prende armas KayKit nos ossos `handslot.r`/`handslot.l`, junta as animações KayKit num arquivo sem malha (`kaykit-animacoes.glb`) e comprime com meshopt. O jogo carrega o `MeshoptDecoder` (opcional, como o `GLTFLoader`).

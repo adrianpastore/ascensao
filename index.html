@@ -288,9 +288,9 @@ const MOBS={
  polarbear:{name:'Urso Polar Gigante',body:'quad',look:{skin:0xf0f2f4,eye:0x202020,ears:1,bulk:1},s:1.6,hp:150,dmg:22,spd:1.7,range:1.7,xp:36,r:.6,windup:.7,cd:1.7,kind:'melee',tip:'Enorme e muito resistente. Cada patada dói muito.'},
  yeti:{name:'Yeti',body:'biped',look:{skin:0xe8eef4,cloth:0xc8d4e0,eye:0x60c0ff,weapon:'club',tusks:1},s:1.35,hp:110,dmg:18,spd:1.9,range:1.5,xp:30,r:.42,windup:.55,cd:1.6,kind:'charger',tip:'Investe correndo de longe. Saia da frente.'},
  mammoth:{name:'Mamute Ancestral',body:'quad',look:{skin:0x8a6a50,eye:0xff4020,tusks:1,mane:1,bulk:1},s:2.5,hp:600,dmg:28,spd:2,range:2.6,xp:170,r:.95,windup:.8,cd:1.6,kind:'boss',abil:['slam','charge','summon']},
- elfspear:{name:'Lanceiro Élfico',body:'biped',look:{skin:0xe8f0ff,cloth:0x3a6a9a,eye:0x9ff0ff,ears:1,weapon:'spear'},s:.95,hp:40,dmg:11,spd:2.6,range:1.9,xp:18,r:.27,windup:.4,cd:1.1,kind:'melee',tip:'Ágil, com lança de alcance maior que o normal.'},
- elfarcher:{name:'Arqueira Élfica',body:'biped',look:{skin:0xe8f0ff,cloth:0x2a5a7a,eye:0x9ff0ff,ears:1,hood:1,weapon:'bow'},s:.92,hp:30,dmg:9,spd:2.2,range:9,xp:17,r:.26,windup:.5,cd:1.8,kind:'ranged',proj:{col:0xa8e8ff,speed:12,slow:1.5},tip:'Flechas de gelo que deixam você lento.'},
- elfmage:{name:'Feiticeira Élfica',body:'biped',look:{skin:0xf0f4ff,cloth:0x6a9ad0,eye:0xffffff,ears:1,robe:1,weapon:'staff'},s:.95,hp:36,dmg:8,spd:1.8,range:8,xp:20,r:.28,windup:.6,cd:2.2,kind:'ranged',heal:1,proj:{col:0x9fe0ff,speed:6,slow:2.5},tip:'Congela e cura os aliados. Elimine primeiro.'},
+ elfspear:{name:'Lanceiro do Gelo',body:'biped',look:{skin:0xe8f0ff,cloth:0x3a6a9a,eye:0x9ff0ff,weapon:'spear'},s:.95,hp:40,dmg:11,spd:2.6,range:1.9,xp:18,r:.27,windup:.4,cd:1.1,kind:'melee',tip:'Ágil, com lança de alcance maior que o normal.'},
+ elfarcher:{name:'Arqueira do Gelo',body:'biped',look:{skin:0xe8f0ff,cloth:0x2a5a7a,eye:0x9ff0ff,hood:1,weapon:'bow'},s:.92,hp:30,dmg:9,spd:2.2,range:9,xp:17,r:.26,windup:.5,cd:1.8,kind:'ranged',proj:{col:0xa8e8ff,speed:12,slow:1.5},tip:'Flechas de gelo que deixam você lento.'},
+ elfmage:{name:'Feiticeira do Gelo',body:'biped',look:{skin:0xf0f4ff,cloth:0x6a9ad0,eye:0xffffff,robe:1,weapon:'staff'},s:.95,hp:36,dmg:8,spd:1.8,range:8,xp:20,r:.28,windup:.6,cd:2.2,kind:'ranged',heal:1,proj:{col:0x9fe0ff,speed:6,slow:2.5},tip:'Congela e cura os aliados. Elimine primeiro.'},
  snowqueen:{name:'Rainha da Neve',body:'biped',look:{skin:0xf0f4ff,cloth:0x9ad0ff,eye:0xffffff,ears:1,robe:1,crown:1,weapon:'staff'},s:1.9,hp:500,dmg:24,spd:1.9,range:2.3,xp:170,r:.6,windup:.8,cd:1.6,kind:'boss',abil:['slam','volley','summon'],proj:{col:0xbff0ff,speed:8,slow:2}},
  imp:{name:'Diabrete',body:'biped',look:{skin:0xb03020,cloth:0x401010,eye:0xffd040,horns:1,tail:1},s:.75,hp:28,dmg:9,spd:2.4,range:8,xp:15,r:.26,windup:.45,cd:1.8,kind:'ranged',proj:{col:0xff7020,speed:9},tip:'Lança bolas de fogo de longe.'},
  hellhound:{name:'Cão Infernal',body:'quad',look:{skin:0x3a1010,eye:0xffa020,ears:1,tail:1,spikes:1},s:1,hp:36,dmg:10,spd:3.6,range:1.15,xp:16,r:.34,windup:.3,cd:.9,kind:'leaper',tip:'Rápido e salta em cima de você.'},
@@ -308,14 +308,15 @@ const MOBS={
   ZMB={idle:'Zombie_Idle',walk:'Zombie_Walk',run:'Running',attack:'Zombie_Attack',hit:'Zombie_Reaction_Hit',death:'Zombie_Dying'},
   m=(f,clips,o={})=>({file:'models/'+f+'.glb',clips,...o}),x=(f,clips,o={})=>m(f,clips,{anims:'models/mixamo-animacoes.glb',...o});
  const MODELOS={
-  goblin:x('goblin',HUM),orc:x('orc',MUT),shaman:x('xama',MAG),boss:x('mutante',MUT,{aura:0xffb030}),
-  skeleton:x('esqueleto-zumbi',ZMB),skarcher:x('esqueleto-zumbi',{...ZMB,attack:'Standing_Draw_Arrow'},{tint:0xc8c0b0}),deadknight:x('cavaleiro',HUM,{tint:0x6a6a78}),lich:x('feiticeira',MAG,{tint:0xb8a0d8,aura:0x9050ff}),
+  goblin:x('goblin',HUM),orc:x('orc',MUT),shaman:x('goblin',MAG,{tint:0xb898d8,emissive:0x140a28}),boss:x('orc',MUT,{h:1.25,tint:0xd8c090,aura:0xffb030}),
+  skeleton:x('esqueleto-zumbi',ZMB),skarcher:x('esqueleto-zumbi',{...ZMB,attack:'Standing_Draw_Arrow'},{tint:0xc8c0b0}),deadknight:x('esqueleto-zumbi',{...ZMB,attack:'Standing_Melee_Attack_Horizontal'},{tint:0x8a8478}),lich:x('esqueleto-zumbi',{...ZMB,attack:'Standing_1H_Magic_Attack_01'},{tint:0xc0b0e0,emissive:0x180a30,aura:0x9050ff}),
   spider:m('aranha',ARA),weaver:m('aranha',ARA,{tint:0xc0a8ff}),brood:m('aranha',ARA,{tint:0x8c8c8c}),spiderqueen:m('aranha',ARA,{aura:0xff3020}),
   ant:m('formiga',FOR),antsoldier:m('formiga',FOR,{tint:0xc05038}),antspitter:m('formiga',{...FOR,attack:'Formic Acid'},{tint:0x90b048}),antqueen:m('formiga-rainha',{...FOR,attack:'Attack2'},{aura:0xffa020}),
   wolfm:m('lobo-sombrio',LOB,{rot:Math.PI/2}),alpha:m('lobo-sombrio',LOB,{rot:Math.PI/2,tint:0x707080,aura:0xff3020}),boar:m('javali',JAV),bear:m('urso',URS),
   icewolf:m('lobo-sombrio',LOB,{rot:Math.PI/2,tint:0xd8e8ff,emissive:0x0a1a30}),polarbear:m('urso-polar',URS),yeti:x('yeti',MUT),
   hellhound:m('cao-infernal',CAO),imp:x('demonio',MAG,{tint:0xff8070}),brute:x('demonio-ferreiro',MUT),flamelord:x('demonio',HUM,{tint:0xffa070,emissive:0x401000,aura:0xff5010}),
   elfspear:x('vampiro',HUM,{emissive:0x0a1a30}),elfarcher:x('arqueira',ARC,{tint:0xc8dcff}),elfmage:x('feiticeira',MAG,{tint:0xa8d4ff,emissive:0x10284a}),snowqueen:x('feiticeira',MAG,{tint:0x9fd0ff,emissive:0x0a1830,aura:0x80d0ff})};
+ // cada família usa modelos só dela (o mesmo boneco não aparece em famílias diferentes);
  // Mamute, Limos e Cogumelos seguem com as formas primitivas (sem modelo sombrio confiável por enquanto)
  for(const t in MODELOS)if(MOBS[t])MOBS[t].model=MODELOS[t]}
 const FAMS={
@@ -326,22 +327,22 @@ const FAMS={
  bst:{name:'Feras',types:['wolfm','boar','bear'],w:[.5,.3,.2],boss:'alpha'},
  sli:{name:'Limos e Fungos',types:['slime','shroom','sporer'],w:[.45,.3,.25],boss:'slimeking'},
  ice:{name:'Feras do Gelo',types:['icewolf','polarbear','yeti'],w:[.5,.25,.25],boss:'mammoth'},
- elf:{name:'Elfos do Gelo',types:['elfspear','elfarcher','elfmage'],w:[.45,.3,.25],boss:'snowqueen'},
+ elf:{name:'Caçadores do Gelo',types:['elfspear','elfarcher','elfmage'],w:[.45,.3,.25],boss:'snowqueen'},
  dem:{name:'Demônios',types:['imp','hellhound','brute'],w:[.4,.35,.25],boss:'flamelord'}};
 const OPENVIS={
  forest:{fog:0x1c2a22,sky:[0x1c2c3c,0x5a6a50],ground:0x4a6034,light:0xffb060,crystal:0x9fff90,amb:0x6a8a7a,gnd:0x1a2010,sun:0xffd0a0,sunI:.65,fogD:.045},
  tundra:{fog:0x9fb0c4,sky:[0x6a88b0,0xc8d4e0],ground:0xb0bece,light:0x9fd8ff,crystal:0xa8e8ff,amb:0x8aa0c0,gnd:0x4a5a6a,sun:0xffffff,sunI:.75,fogD:.04},
  desert:{fog:0xb89060,sky:[0x4a7ab8,0xe0c088],ground:0xb89a6a,light:0xffa040,crystal:0xffd070,amb:0x8a7050,gnd:0x4a3a2a,sun:0xfff0d0,sunI:.85,fogD:.04}};
 const WORLDS=[
- {name:'Catacumbas',style:'dungeon',ceil:3.2,vis:0,zones:[{fams:['und','gob','ara']}]},
+ {name:'Catacumbas',style:'dungeon',ceil:3.2,vis:0,zones:[{fams:['und']}]},
  {name:'Ninho Subterrâneo',style:'cave',ceil:4.5,vis:1,zones:[{fams:['ara','ant','sli']}]},
- {name:'Floresta Sombria',style:'open',vis:'forest',zones:[{label:'Clareira',fams:['bst'],props:'tree',dens:.58},{label:'Mata Fechada',fams:['sli','ara'],props:'tree',dens:.5}]},
+ {name:'Floresta Sombria',style:'open',vis:'forest',zones:[{label:'Clareira',fams:['bst'],props:'tree',dens:.58},{label:'Mata Fechada',fams:['ara'],props:'tree',dens:.5}]},
  {name:'Tundra Congelada',style:'open',vis:'tundra',zones:[{label:'Campo de Gelo',fams:['ice'],props:'ice',dens:.64},{label:'Floresta Congelada',fams:['elf'],props:'pine',dens:.52}]},
- {name:'Forja Vulcânica',style:'cave',ceil:5,vis:3,zones:[{fams:['dem','gob']}]},
+ {name:'Forja Vulcânica',style:'cave',ceil:5,vis:3,zones:[{fams:['dem']}]},
  {name:'Deserto das Ruínas',style:'open',vis:'desert',zones:[{label:'Dunas',fams:['ant'],props:'rock',dens:.64},{label:'Ruínas Antigas',fams:['und'],props:'ruin',dens:.55}]},
- {name:'Abismo Violeta',style:'dungeon',ceil:5,vis:4,zones:[{fams:['dem','und']}]},
- {name:'Salão do Trono',style:'dungeon',ceil:6,vis:5,zones:[{fams:['und','gob','dem']}]},
- {name:'Cripta Gelada',style:'dungeon',ceil:3.6,vis:2,zones:[{fams:['und','elf','ice']}]}];
+ {name:'Abismo Violeta',style:'dungeon',ceil:5,vis:4,zones:[{fams:['dem']}]},
+ {name:'Salão do Trono',style:'dungeon',ceil:6,vis:5,zones:[{fams:['gob']}]},
+ {name:'Cripta Gelada',style:'dungeon',ceil:3.6,vis:2,zones:[{fams:['und']}]}];
 const zoneAt=(x,y,W)=>!W||W.zones.length<2?0:(x+(vnoise(y*.12,3.7,64)-.5)*10<N/2?0:1);
 const famPick=fam=>{let r=Math.random();for(let i=0;i<fam.types.length;i++){r-=fam.w[i];if(r<=0)return fam.types[i]}return fam.types[0]};
 const WEAP=[{name:'Adaga',dmg:10,cd:.34,range:1.6,arc:1.0,crit:.16},{name:'Espada',dmg:19,cd:.62,range:2.15,arc:1.7,crit:.06},
@@ -622,7 +623,7 @@ function instMesh(geo,mat,items,fn){if(!items.length)return null;const im=new TH
 function skyDome(top,bot){const geo=new THREE.SphereGeometry(90,24,12),c=[],t=new THREE.Color(top),b=new THREE.Color(bot),pos=geo.attributes.position;
   for(let i=0;i<pos.count;i++){const k=Math.max(0,Math.min(1,pos.getY(i)/90*1.6+.15));const cc=b.clone().lerp(t,k);c.push(cc.r,cc.g,cc.b)}
   geo.setAttribute('color',new THREE.Float32BufferAttribute(c,3));const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));m.position.set(N/2,0,N/2);m.renderOrder=-1;return m}
-function buildFloor(f,pen,W){W=W||{w:0,fams:['gob']};const WD=pen?null:WORLDS[W.w]||WORLDS[0];
+function buildFloor(f,pen,W){W=W||{w:0,fams:['und']};const WD=pen?null:WORLDS[W.w]||WORLDS[0];
   if(L){scene.remove(L.group);for(const e of L.ents)e.alive=false}
   const style=pen?'dungeon':WD.style,ceil=pen?3:(WD.ceil||3);
   let th;if(pen)th=Object.assign({},PEN_TH);else if(style==='open'){const v=OPENVIS[WD.vis];th=Object.assign({},v,{wall:v.ground,floor:v.ground})}else th=Object.assign({},THEMES[WD.vis]);
@@ -1204,7 +1205,7 @@ function showOv(title,text,buttons,mode=''){ov.classList.toggle('story',mode==='
 function pause(){state='pause';P.trigger=false;showOv('Pausado','O portal continua aberto.',[['Continuar',resume]],'story')}
 function resume(){ov.hidden=true;state='play';last=performance.now();if(!coarse)lockPtr()}
 function enterFloor(kind){$('fade').style.opacity=1;closeCity();
-  const go=()=>{$('fade').textContent='';if(kind==='pen')buildFloor(1+P.maxRank*2,true);else buildFloor(RUN.r*2+1+RUN.i*.6,false,{w:RUN.w??0,fams:RUN.fams||['gob']});
+  const go=()=>{$('fade').textContent='';if(kind==='pen')buildFloor(1+P.maxRank*2,true);else buildFloor(RUN.r*2+1+RUN.i*.6,false,{w:RUN.w??7,fams:RUN.fams||['gob']});
     try{renderer.compile(scene,cam);renderer.compile(gunScene,gunCam)}catch(e){}
     if(kind==='pen'||RUN.i===0){P.hp=maxHP();P.mp=maxMP()}else{P.hp=Math.min(maxHP(),P.hp+maxHP()*.25);P.mp=maxMP()}
     P.skCd=[0,0,0,0];P.fury=0;P.dash=null;save();hudKey='';hud();ov.hidden=true;state='play';last=performance.now();
@@ -1219,7 +1220,7 @@ function enterFloor(kind){$('fade').style.opacity=1;closeCity();
       setTimeout(()=>note('Novo: contra-ataque','Depois de uma esquiva perfeita, o próximo golpe é um contra-ataque crítico e muito forte.'),14500)}};
   // espera os modelos 3D das famílias do portal (com limite de tempo; se falharem, usa as formas primitivas)
   const lp=kind!=='pen'&&loadModelsFor(RUN&&RUN.fams);setTimeout(()=>{if(!lp){go();return}$('fade').textContent='Carregando...';lp.then(go)},470)}
-function enterPortal(o){if(P.penalty){enterFloor('pen');return}if(o.w===undefined){o.w=0;o.fams=['gob']}
+function enterPortal(o){if(P.penalty){enterFloor('pen');return}if(o.w===undefined){o.w=7;o.fams=['gob']}
   RUN={r:o.r,w:o.w,fams:o.fams,floors:o.floors,i:0,gold:0,kills:0,t0:gameT,id:o.id};enterFloor('run')}
 function finishRun(cleared){state='transit';document.exitPointerLock?.();const r=RUN;RUN=null;
   P.gold+=r.gold;P.goldTotal+=r.gold;let extra='';
@@ -1238,7 +1239,7 @@ const hunterRank=()=>P.bestRank<0?'E':THEMES[Math.min(5,P.bestRank)].rank;
 let cityTab='portais';
 function goCity(){ov.hidden=true;state='city';document.exitPointerLock?.();P.trigger=false;
   if(checkDay()&&!P.penalty)setTimeout(announceDaily,400);
-  P.hp=maxHP();P.mp=maxMP();if(!P.offers||P.offers.some(o=>o.w===undefined))genOffers();save();$('stage').classList.add('incity');$('city').classList.add('open');renderCity()}
+  P.hp=maxHP();P.mp=maxMP();if(!P.offers||P.offers.some(o=>o.w===undefined||!o.fams.every((f,i)=>{const z=WORLDS[o.w]&&WORLDS[o.w].zones[i];return z&&z.fams.includes(f)})))genOffers();save();$('stage').classList.add('incity');$('city').classList.add('open');renderCity()}
 function closeCity(){$('stage').classList.remove('incity');$('city').classList.remove('open')}
 const SHOP=[
  {name:'Poção de vida',desc:'Recupera 40% da vida. Tecla C.',price:()=>30,can:()=>P.potions<9,buy:()=>P.potions++,own:()=>`${P.potions}/9`},
@@ -1288,7 +1289,7 @@ const MENU_TEXT=$('ovText').textContent;
 function intro(i){if(i<INTRO.length){showOv(INTRO[i][0],INTRO[i][1],[['Continuar',()=>intro(i+1)]],'story');return}
   showOv('SISTEMA','Uma força desconhecida respondeu à sua vontade de sobreviver. A partir de agora, cada luta vai deixar você mais forte. Aceitar a conexão?',
     [['Aceitar',accept],['Recusar',()=>showOv('SISTEMA','Recusa não registrada. A conexão já foi estabelecida.',[['Continuar',accept]],'sys')]],'sys')}
-function accept(){P.started=true;P.daily=newDaily();tone(400,1200,.6,.08,'sine');RUN={r:0,w:0,fams:['gob'],floors:1,i:0,gold:0,kills:0,t0:gameT,tutorial:true};enterFloor('run');
+function accept(){P.started=true;P.daily=newDaily();tone(400,1200,.6,.08,'sine');RUN={r:0,w:7,fams:['gob'],floors:1,i:0,gold:0,kills:0,t0:gameT,tutorial:true};enterFloor('run');
   setTimeout(()=>note('Conexão estabelecida','O Sistema agora acompanha você. Abra seu status com Tab.',true),900);setTimeout(announceDaily,4800)}
 
 /* ================= atualização ================= */
