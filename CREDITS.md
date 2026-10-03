@@ -16,18 +16,29 @@ Modelos 3D usados em `models/`. Todos foram convertidos e otimizados (só as ani
 
 **Atenção:** o lobo é **CC-BY-NC-SA**: só pode ser usado enquanto o jogo não for comercial, e a versão modificada (`lobo-sombrio.glb`) fica sob a mesma licença. Se o jogo passar a ter venda ou anúncios, troque esse modelo.
 
-## Estilo cartoon (provisórios, a substituir pelos modelos sombrios)
+## Mixamo (Adobe)
 
-| Pack | Autor | Licença | Arquivos em `models/` |
-|---|---|---|---|
-| [Ultimate Monsters](https://quaternius.com/packs/ultimatemonsters.html) | Quaternius | CC0 1.0 | `orc`, `orc-caveira`, `tribal`, `demonio`, `demonio-azul`, `limo`, `limo-espinhos`, `cogumelo`, `cogumelo-espinhos` |
-| [KayKit Skeletons 1.1](https://kaylousberg.itch.io/kaykit-skeletons) | Kay Lousberg | CC0 1.0 | `esqueleto`, `esqueleto-arqueiro`, `esqueleto-guerreiro`, `esqueleto-mago`, `kaykit-animacoes` |
-| [KayKit Adventurers 2.0](https://kaylousberg.itch.io/kaykit-adventurers) | Kay Lousberg | CC0 1.0 | `elfo-lanceiro`, `elfo-arqueiro`, `elfo-mago` |
+Personagens e animações de [Mixamo](https://www.mixamo.com), usados sob a licença do Mixamo: uso gratuito em jogos (inclusive comerciais), sem redistribuir os arquivos soltos ([FAQ](https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html)).
 
-CC0: domínio público, crédito não obrigatório.
+| Personagem | Arquivo em  | Usado em |
+|---|---|---|
+| Goblin D Shareyko |  | Goblin |
+| Warrok W Kurniawan |  | Orc |
+| Ganfaul M Aure |  | Xamã |
+| Mutant | ,  (textura clareada) | Rei Goblin, Yeti |
+| Skeletonzombie T Avelange |  | Esqueleto, Arqueiro Esqueleto |
+| Knight D Pelegrini |  | Cavaleiro Morto |
+| Nightshade J Friedrich |  | Lich Ancestral, Feiticeira Élfica, Rainha da Neve |
+| Maw J Laygo |  | Demônio Ferreiro |
+| Demon T Wiezzorek |  | Diabrete, Senhor das Chamas |
+| Vampire A Lusth |  | Lanceiro Élfico |
+| Erika Archer |  | Arqueira Élfica |
+
+Animações (): Standing Idle, Walking, Running, Standing Melee Attack Horizontal, Dying, Standing 1H Magic Attack 01, Standing Draw Arrow, Mutant Idle/Walking/Run/Swiping/Dying, Zombie Idle/Walk/Attack/Reaction Hit/Dying.
 
 ## Baixados e descartados
 
+- **Ultimate Monsters** (Quaternius) e **KayKit Skeletons / Adventurers** (Kay Lousberg), todos CC0: usados nas primeiras versões, trocados pelo estilo sombrio.
 - **bigfoot v1** (Sketchfab): as texturas são do jogo Black Desert Online; o modelo foi extraído de um jogo comercial e não pertence a quem o publicou.
 - **Woolly Mammoth** e **Polar Bear – Stylized** (Sketchfab): nomes de textura de asset comercial (`CH_NPC_MOB_…_MI_…`) e o mesmo mamute repostado por várias contas; origem duvidosa.
 - **Imp** (Sketchfab, CC-BY-SA): exportação quebrada, corpo e cabeça deformados.
